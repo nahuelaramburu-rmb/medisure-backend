@@ -1,0 +1,43 @@
+import { JwtAdapter } from "../../../config";
+import { LoginUserDto } from "../../dtos/auth/login-user.dto";
+import { AuthRepository } from '../../repositories/auth.repository';
+
+interface UserToken{
+    token: string;
+    user: {
+        id: string;
+        name: string;
+        email: string;
+    };
+}
+
+interface LoginUserUseCase{
+    execute(LoginUserDto: LoginUserDto): Promise<UserToken>
+}
+
+type SignToken = (payload: Object, duration?: number) => Promise<string | null>;
+
+export class LoginUser implements LoginUserUseCase {
+    constructor(
+        private readonly authRepository: AuthRepository,
+        private readonly signedToken: SignToken = JwtAdapter.generateToken,
+    ){}
+    async execute(LoginUserDto: LoginUserDto): Promise<UserToken> {
+        //create user
+        const user = await this.authRepository.login(LoginUserDto);
+        //generate token
+        const token = await this.signedToken({ id: user.id }, 1800); // 30 minutes
+        if (!token) {
+            throw new Error("Failed to generate token");
+        }
+
+        return {
+            token: token,
+            user: {
+                id: user.id,
+                name: user.name,
+                email: user.email
+            }
+        }
+    }
+}

@@ -1,15 +1,15 @@
 import { Request, Response } from 'express';
-import { AuthRepository, CustomError, RegisterUser, RegisterUserDto } from '../../domain';
-import { JwtAdapter } from '../../config';
+import { AuthRepository, CustomError, RegisterUser, RegisterUserDto, LoginUserDto } from '../../domain';
 import { UserModel } from '../../data/mongodb';
+import { LoginUser } from '../../domain/use-cases/auth/login-user.use-case';
 
 export class AuthController {
     // DI 
     constructor(
         private readonly authRepository: AuthRepository,
-    ) {
-        
-    }
+    ) {}
+
+
     private handleError = (error: unknown, res: Response ) =>{
         if (error instanceof CustomError) {
             return res.status(error.statusCode).json({ error: error.message });
@@ -30,7 +30,14 @@ export class AuthController {
 
 
     loginUser = async( req: Request, res:Response)=>{
-        res.json('loginUser controller');
+        const [error, loginUserDto] = LoginUserDto.create(req.body);
+        if(error) return res.status(400).json({error});
+        
+        new LoginUser(this.authRepository)
+            .execute( loginUserDto! )
+            .then( (data) => res.json(data) )
+            .catch( error => this.handleError(error, res) );
+
     }
 
     getUsers = (req: Request, res: Response)=>{
