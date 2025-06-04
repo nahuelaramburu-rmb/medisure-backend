@@ -1,7 +1,7 @@
 import { Router, Request, Response } from "express";
 import { AuthController } from "./controller";
-import { AuthRepository } from '../../domain/repositories/auth.repository';
 import { AuthDatasourceImpl, AuthRepositoryImpl } from "../../infraestructure";
+import { AuthMiddleware } from "../middlewares/auth.middleware";
 
 export class AuthRoutes{
 
@@ -18,7 +18,10 @@ export class AuthRoutes{
         router.post('/register', (req:Request, res:Response) => {
             controller.registerUser(req, res);
         });
-
+        router.get('/', AuthMiddleware.validateJWT , (req: Request, res: Response) => {
+            controller.getUsers(req, res)
+        });
+        
         return router;
     }
 }
