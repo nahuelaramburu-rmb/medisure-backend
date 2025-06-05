@@ -10,5 +10,5 @@ export const swaggerSpec = swaggerJSDoc({
       description: 'Documentación de la API de Medisure',
     },
   },
-  apis: ['./src/presentation/routes/*.ts', './src/presentation/auth/*.ts'], // Ajusta las rutas a tus archivos de rutas/controllers
+  apis: ['./src/presentation/routes/*.ts', './src/presentation/auth/*.ts'], 
 });

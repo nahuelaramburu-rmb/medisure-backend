@@ -28,7 +28,6 @@ async function main(){
         handler: swaggerUi.setup(swaggerSpec),
     };
     
-    //todo: inicio server
     new Server({
         port: envs.PORT,
         routes: AppRoutes.routes, 

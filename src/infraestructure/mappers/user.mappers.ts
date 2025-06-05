@@ -4,7 +4,7 @@ import { UserEntity } from '../../domain/entities/user.entity';
 
 export class UserMapper{
     static UserEntityFromObject( object: {[key:string]: any}){
-        const { id, _id, name, email, password, roles } = object;
+        const { id, _id, name, email, password, roles, createdAt, passwordChangedAt} = object;
         if (!_id || !id) {
             throw CustomError.badRequest('Missing Id');
         }
@@ -18,7 +18,10 @@ export class UserMapper{
             name,
             email,
             password,
-            roles
+            roles,
+            createdAt,
+            passwordChangedAt
+
         );
     }
 }

@@ -1,6 +1,6 @@
 import { BcryptAdapter } from "../../config";
 import { UserModel } from "../../data/mongodb";
-import { AuthDatasource, CustomError, LoginUserDto, RegisterUserDto, UserEntity } from "../../domain";
+import { AuthDatasource, ChangePasswordDto, CustomError, LoginUserDto, RegisterUserDto, UserEntity } from "../../domain";
 import { UserMapper } from "../mappers/user.mappers";
 
 type HashFunction =(password: string) => string;
@@ -30,11 +30,7 @@ export class AuthDatasourceImpl implements AuthDatasource{
                 password: this.hashPassword(password),
             })
             await user.save();
-            //3 Map the DTO to an entity
-            //TODO: map the DTO to an entity
-
-
-            //4. Save the user in the database
+          
             return UserMapper.UserEntityFromObject(user);
 
         }catch(error){
@@ -64,6 +60,27 @@ export class AuthDatasourceImpl implements AuthDatasource{
             if( error instanceof CustomError){
                 throw error;
             }
+            throw CustomError.internalServerError();
+        }
+    }
+
+    async changePassword( changePasswordDto: ChangePasswordDto): Promise<UserEntity>{
+        const { email, oldPassword, newPassword } = changePasswordDto;
+        try{
+            const user = await UserModel.findOne({ email});
+            if (!user) throw CustomError.badRequest('Credentials error');
+            //1. Compare the old password
+            const isValid = this.comparePassword(oldPassword, user.password);
+            if (!isValid) throw CustomError.badRequest('Credentials error');
+            //2. Hash the new password
+            user.password = this.hashPassword(newPassword);
+            //3. Save the user
+            user.passwordChangedAt = new Date();
+            await user.save();
+
+            return UserMapper.UserEntityFromObject(user);
+        }catch(error){
+            if(error instanceof CustomError) throw error;
             throw CustomError.internalServerError();
         }
     }

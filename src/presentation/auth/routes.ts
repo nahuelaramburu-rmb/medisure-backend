@@ -42,6 +42,9 @@ export class AuthRoutes{
         router.post('/register', (req:Request, res:Response) => {
             controller.registerUser(req, res);
         });
+        router.post('/change-password', AuthMiddleware.validateJWT, (req:Request, res:Response) =>{
+            controller.changePassword(req, res);
+        })
         router.get('/', AuthMiddleware.validateJWT , (req: Request, res: Response) => {
             controller.getUsers(req, res)
         });

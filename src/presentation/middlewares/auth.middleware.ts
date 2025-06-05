@@ -21,7 +21,6 @@ export class AuthMiddleware {
         const token = req.headers.authorization?.split(' ').at(1); // Assuming Bearer token format
 
         try{
-            //TODO: keep payload 
             const payload = await JwtAdapter.validateToken<{ id: string}>(token!);
             if( !payload ) {
                 res.status(401).json({ error: 'Invalid Token' });

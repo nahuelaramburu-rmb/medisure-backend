@@ -22,6 +22,15 @@ const userSchema = new Schema({
         type: [String],
         default: ['USER_ROLE'],
         enum: ['USER_ROLE', 'ADMIN_ROLE'],
+    },
+    createdAt:{
+        type: Date,
+        default: Date.now,
+        required: true,
+    },
+    passwordChangedAt:{
+        type: Date,
+        default: Date.now,
     }
 });
 
