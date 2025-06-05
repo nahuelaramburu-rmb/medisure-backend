@@ -18,8 +18,9 @@ export class RegisterUserDto{
         if(!Validators.email.test(email)) return ['Invalid email'];
 
         if(!password) return ['Missing password'];
-        if(password.length < 6) return ['Password must be at least 6 characters long'];
-        
+        if(password.length <= 12) return ['Password must be at least 12 characters long'];
+        if(!Validators.password.test(password)) return ['Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character'];
+
         return [
             undefined,
             new RegisterUserDto(name, email, password)

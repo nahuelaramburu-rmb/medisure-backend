@@ -2,6 +2,9 @@ import { envs } from './config/envs';
 import { MongoDatabase } from './data/mongodb';
 import { AppRoutes } from './presentation/routes';
 import { Server } from "./presentation/server";
+import swaggerUi from 'swagger-ui-express';
+import { swaggerSpec } from './swagger';
+
 
 
 (()=>{
@@ -15,6 +18,16 @@ async function main(){
         mongoUrl: envs.MONGO_URL,
     })
 
+    // Swagger middleware
+    const swaggerMiddleware = {
+        path: '/api-docs',
+        handler: swaggerUi.serve,
+    };
+    const swaggerSetupMiddleware = {
+        path: '/api-docs',
+        handler: swaggerUi.setup(swaggerSpec),
+    };
+    
     //todo: inicio server
     new Server({
         port: envs.PORT,

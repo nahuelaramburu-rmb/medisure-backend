@@ -13,7 +13,29 @@ export class AuthRoutes{
         const AuthRepository = new AuthRepositoryImpl(datasource);
         const controller = new AuthController(AuthRepository);
 
-
+        /**
+         * @swagger
+         * /auth/login:
+         *   post:
+         *     summary: Iniciar sesión de usuario
+         *     tags: [Auth]
+         *     requestBody:
+         *       required: true
+         *       content:
+         *         application/json:
+         *           schema:
+         *             type: object
+         *             properties:
+         *               email:
+         *                 type: string
+         *               password:
+         *                 type: string
+         *     responses:
+         *       200:
+         *         description: Usuario autenticado
+         *       401:
+         *         description: Credenciales inválidas
+         */
         router.post('/login', (req:Request, res:Response) => {
             controller.loginUser(req, res)
         });
