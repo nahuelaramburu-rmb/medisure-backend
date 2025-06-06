@@ -16,7 +16,7 @@ export class AuthDatasourceImpl implements AuthDatasource{
 
 
     async register(registerUserDto: RegisterUserDto): Promise<UserEntity> {
-        const { name, email, password} = registerUserDto;
+        const { full_name, email, password} = registerUserDto;
 
         // Simulate a database operation
         try{
@@ -25,7 +25,7 @@ export class AuthDatasourceImpl implements AuthDatasource{
             if ( exist) throw CustomError.badRequest('Credentials error');
             //2. Hash the password
             const user = await UserModel.create({
-                name,
+                full_name,
                 email,
                 password: this.hashPassword(password),
             })

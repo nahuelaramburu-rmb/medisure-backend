@@ -1,7 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 
 const userSchema = new Schema({
-    name: {
+    full_name: {
         type: String,
         required: true,
     },
@@ -14,14 +14,14 @@ const userSchema = new Schema({
         type: String,
         required: true,
     },
-    img: {
+    department_clinic: {
         type: String,
-        default: null,
+        default: 'NO_DEPARTMENT',
     },
     roles: {
         type: [String],
         default: ['USER_ROLE'],
-        enum: ['USER_ROLE', 'ADMIN_ROLE'],
+        enum: ['SUPER_ADMIN', 'DEPARTMENT_ADMIN','RESEARCHER','VIEWER', 'USER_ROLE'],
     },
     createdAt:{
         type: Date,

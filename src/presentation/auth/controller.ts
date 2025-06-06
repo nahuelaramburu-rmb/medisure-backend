@@ -3,13 +3,14 @@ import { AuthRepository, CustomError, RegisterUser, RegisterUserDto, LoginUserDt
 import { UserModel } from '../../data/mongodb';
 import { LoginUser } from '../../domain/use-cases/auth/login-user.use-case';
 import { ChangePassword } from '../../domain/use-cases/auth/change-password-use.case';
+import { logger } from '../../config/logger';
 
 
 /**
  * @swagger
  * /v1/api/auth/register:
  *   post:
- *     summary: Registrar un nuevo usuario
+ *     summary: Register a new user
  *     tags: [Auth]
  *     requestBody:
  *       required: true
@@ -18,7 +19,7 @@ import { ChangePassword } from '../../domain/use-cases/auth/change-password-use.
  *           schema:
  *             type: object
  *             properties:
- *               name:
+ *               full_name:
  *                 type: string
  *               email:
  *                 type: string
@@ -26,16 +27,64 @@ import { ChangePassword } from '../../domain/use-cases/auth/change-password-use.
  *                 type: string
  *     responses:
  *       200:
- *         description: Usuario registrado
+ *         description: User registered successfully
  *       400:
- *         description: Error de validación
+ *         description: Validation error
+ */
+
+/**
+ * @swagger
+ * /v1/api/auth/login:
+ *   post:
+ *     summary: User login
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: User logged in successfully
+ *       400:
+ *         description: Invalid credentials or validation error
+ */
+
+/**
+ * @swagger
+ * /v1/api/auth/logout:
+ *   post:
+ *     summary: User logout
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               id:
+ *                 type: string
+ *               token:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: User logged out successfully
+ *       400:
+ *         description: Logout error
  */
 
 /**
  * @swagger
  * /v1/api/auth/change-password:
  *   post:
- *     summary: Cambiar la contraseña del usuario
+ *     summary: Change user password
  *     tags: [Auth]
  *     requestBody:
  *       required: true
@@ -52,22 +101,22 @@ import { ChangePassword } from '../../domain/use-cases/auth/change-password-use.
  *                 type: string
  *     responses:
  *       200:
- *         description: Contraseña cambiada exitosamente
+ *         description: Password changed successfully
  *       400:
- *         description: Error de validación
+ *         description: Validation error
  */
 
 /**
  * @swagger
  * /v1/api/auth/:
  *   get:
- *     summary: Obtener todos los usuarios
+ *     summary: Get all users
  *     tags: [Auth]
  *     responses:
  *       200:
- *         description: Lista de usuarios
+ *         description: List of users
  *       500:
- *         description: Error interno del servidor
+ *         description: Internal server error
  */
 
 export class AuthController {
@@ -91,18 +140,43 @@ export class AuthController {
 
         new LoginUser(this.authRepository)
             .execute( loginUserDto! )
-            .then( (data) => res.json(data) )
-            .catch( error => this.handleError(error, res) );
+            .then( (data) => {
+                logger.info(`User logged in: ${loginUserDto!.email}`);
+                res.json(data)
+            })
+            .catch( error => {
+                logger.warn(`Failed to login user: ${loginUserDto!.email}`);
+                this.handleError(error, res) 
+            });
 
     }
+
+    logoutUser = (req: Request, res: Response) => {
+        const {id, token } = req.body;
+        UserModel.findById(id)
+            .then(user => {
+                logger.info(`User logged out: ${id} with token: ${token}`);
+                res.json({ message: 'Logout successful' });
+            })
+            .catch(error => {
+                logger.error(`Failed to logout user: ${error}`);
+                this.handleError(error, res);
+            });
+    }
+
     registerUser = async (req: Request, res: Response)=>{
         const [error, registerUserDto] = RegisterUserDto.create(req.body);
         if(error) return res.status(400).json({error});
         
         new RegisterUser(this.authRepository)
             .execute( registerUserDto!)
-            .then( (data) => res.json(data) )
-            .catch( error => this.handleError(error, res) );            
+            .then( (data) => {
+
+                res.json(data) 
+            })
+            .catch( error => {
+                this.handleError(error, res) 
+            });            
     }
 
     changePassword = async (req: Request, res: Response)=>{
@@ -122,8 +196,8 @@ export class AuthController {
         UserModel.find()
             .then(users => 
                     res.json({
-                        //users,
-                        user: req.body.user 
+                        users,
+                        //user: req.body.user 
                     }))
             .catch(error => this.handleError(error, res));
     }

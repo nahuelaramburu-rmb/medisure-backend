@@ -32,7 +32,7 @@ export class AuthMiddleware {
                 return;
             }
             // validate user's token
-            
+            console.log(req.body);
             req.body.payload = user; 
 
 

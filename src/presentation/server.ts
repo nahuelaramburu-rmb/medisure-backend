@@ -1,6 +1,8 @@
 import express, { Router } from 'express';
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from '../swagger';
+import cors from 'cors';
+
 interface Options{
     port?: number;
     routes: Router;
@@ -21,6 +23,7 @@ export class Server{
 
     async start(){
         //middlewares
+        this.app.use(cors());
         this.app.use(express.json());
         this.app.use(express.urlencoded({extended: true})); //x-www-form-urlencoded
 

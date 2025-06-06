@@ -7,7 +7,7 @@ export const swaggerSpec = swaggerJSDoc({
     info: {
       title: 'Medisure API',
       version: '1.0.0',
-      description: 'Documentación de la API de Medisure',
+      description: 'API documentation for Medisure',
     },
   },
   apis: ['./src/presentation/routes/*.ts', './src/presentation/auth/*.ts'], 

@@ -1,18 +1,18 @@
-## Proyecto de Arquitectura Limpia con NodeJS
+## Clean Architecture Project with NodeJS
 
-### Instalación
+### Installation
 
-1. Clonar archivo **.env.template** y renombrar a **.env**.
-2. Instalar dependencias.
+1. Clone the **.env.template** file and rename it to **.env**.
+2. Install dependencies:
 ```bash
 npm install
 ```
-3. Levantar la base de datos
+3. Start the database:
 ```bash
 docker-compose up -d
 ```
 
-4. Ejecutar proyecto en modo desarrollo
+4. Run the project in development mode:
 ```bash
 npm run dev
 ```

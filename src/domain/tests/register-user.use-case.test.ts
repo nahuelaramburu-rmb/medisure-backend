@@ -6,7 +6,7 @@ import { RegisterUserDto } from "../dtos/auth/register-user.dto"
 describe ('RegisterUser UseCase',()=>{
     it('should reject if password is less than 12 characters', async ()=>{
         const [error, userDto] = RegisterUserDto.create({
-            name: "Test User",
+            full_name: "Test User",
             email: "test@mail.com",
             password: "short"
         });
@@ -15,7 +15,7 @@ describe ('RegisterUser UseCase',()=>{
     });
     it('should reject if password does not meet complexity requirements', async ()=>{
         const [error, userDto] = RegisterUserDto.create({
-            name: "Test User",
+            full_name: "Test User",
             email: "test@mail.com",
             password: "simplepassword"
         });
@@ -24,7 +24,7 @@ describe ('RegisterUser UseCase',()=>{
     });
     it('should create a valid password',()=>{
         const [error, dto]=RegisterUserDto.create({
-            name: 'Test', 
+            full_name: 'Test', 
             email: 'test@mail.com',
             password: 'Valid1@Password'
         });
