@@ -118,12 +118,12 @@ export class AuthController {
             .catch( error => this.handleError(error, res) );
     }
 
-    getUsers = (req: Request, res: Response)=>{
+    getUsers = (req: Request, res: Response) => {
         UserModel.find()
-            .then(users => 
+            .then(users =>
                     res.json({
-                        //users,
-                        user: req.body.user 
+                        users, 
+                        user: req.user  // Changed from req.body.user to req.user
                     }))
             .catch(error => this.handleError(error, res));
     }

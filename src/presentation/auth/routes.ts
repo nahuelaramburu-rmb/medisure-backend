@@ -15,7 +15,7 @@ export class AuthRoutes{
 
         /**
          * @swagger
-         * /auth/login:
+         * /login:
          *   post:
          *     summary: Iniciar sesión de usuario
          *     tags: [Auth]
@@ -36,6 +36,8 @@ export class AuthRoutes{
          *       401:
          *         description: Credenciales inválidas
          */
+
+        
         router.post('/login', (req:Request, res:Response) => {
             controller.loginUser(req, res)
         });
