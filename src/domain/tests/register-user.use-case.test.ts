@@ -1,4 +1,3 @@
-import { name } from 'ci-info';
 import { RegisterUserDto } from "../dtos/auth/register-user.dto"
 
 
@@ -8,7 +7,7 @@ describe ('RegisterUser UseCase',()=>{
         const [error, userDto] = RegisterUserDto.create({
             full_name: "Test User",
             email: "test@mail.com",
-            password: "short"
+            password: "Shortingi1*" // 11 characters
         });
         expect(error).toBe('Password must be at least 12 characters long');
         expect(userDto).toBeUndefined();

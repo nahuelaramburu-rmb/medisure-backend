@@ -12,7 +12,7 @@ export class LoginUserDto{
         if(!email) return ['Missing email'];
         if(!Validators.email.test(email)) return ['Invalid email'];
         if(!password) return ['Missing password'];
-        if(password.length <= 12) return ['Password must be at least 12 characters long'];
+        if(password.length < 12) return ['Password must be at least 12 characters long'];
 
         return [
             undefined, //error
