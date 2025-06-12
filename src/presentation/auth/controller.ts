@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
 import { AuthRepository, CustomError, RegisterUser, RegisterUserDto, LoginUserDto, ChangePasswordDto } from '../../domain';
-import { UserModel } from '../../data/mongodb';
 import { LoginUser } from '../../domain/use-cases/auth/login-user.use-case';
 import { ChangePassword } from '../../domain/use-cases/auth/change-password-use.case';
 import { logger } from '../../config/logger';
+import { prisma } from '../../data/postgres';
 
 
 /**
@@ -153,7 +153,7 @@ export class AuthController {
 
     logoutUser = (req: Request, res: Response) => {
         const {id, token } = req.body;
-        UserModel.findById(id)
+        prisma.users.findUnique({ where: { id } })
             .then(user => {
                 logger.info(`User logged out: ${id} with token: ${token}`);
                 res.json({ message: 'Logout successful' });
@@ -186,14 +186,14 @@ export class AuthController {
         new ChangePassword(this.authRepository)
             .execute( changePasswordDto!)
             .then( (data) => res.json({
-                message: 'Password changed successfully',
+                msg: 'ok',
                 data
             }))
             .catch( error => this.handleError(error, res) );
     }
 
     getUsers = (req: Request, res: Response) => {
-        UserModel.find()
+        prisma.users.findMany()
             .then(users =>
                     res.json({
                         users,

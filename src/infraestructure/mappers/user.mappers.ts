@@ -2,26 +2,47 @@ import { CustomError } from '../../domain';
 import { UserEntity } from '../../domain/entities/user.entity';
 
 
-export class UserMapper{
-    static UserEntityFromObject( object: {[key:string]: any}){
-        const { id, _id, full_name, email, password, roles, createdAt, passwordChangedAt} = object;
-        if (!_id || !id) {
-            throw CustomError.badRequest('Missing Id');
-        }
-        if( !full_name) throw CustomError.badRequest('Missing name');
-        if( !email) throw CustomError.badRequest('Missing email');
-        if( !password) throw CustomError.badRequest('Missing password');
-        if( !roles) throw CustomError.badRequest('Missing roles');
+export class UserMapper {
+    static UserEntityFromObject(object: { [key: string]: any }) {
+        const {
+            id,
+            email,
+            password_hash,
+            password_changed_at,
+            role_id,
+            organization_id,
+            first_name,
+            last_name,
+            professional_id,
+            department,
+            phone,
+            is_active,
+            last_login,
+            created_at,
+            updated_at,
+        } = object;
+
+        if (!id) throw CustomError.badRequest('Missing Id');
+        if (!email) throw CustomError.badRequest('Missing email');
+        if (!password_hash) throw CustomError.badRequest('Missing password');
+        if (!role_id) throw CustomError.badRequest('Missing role_id');
 
         return new UserEntity(
-            _id||id,
-            full_name,
+            id,
             email,
-            password,
-            roles,
-            createdAt,
-            passwordChangedAt
-
+            password_hash,
+            password_changed_at,
+            role_id,
+            first_name,
+            last_name,
+            organization_id,
+            professional_id,
+            department,
+            phone,
+            is_active,
+            last_login,
+            created_at,
+            updated_at
         );
     }
 }

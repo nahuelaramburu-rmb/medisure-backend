@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
 import { AuthController } from "./controller";
-import { AuthDatasourceImpl, AuthRepositoryImpl } from "../../infraestructure";
+import { AuthPrismaDatasource, AuthRepositoryImpl } from "../../infraestructure";
 import { AuthMiddleware } from "../middlewares/auth.middleware";
 
 export class AuthRoutes{
@@ -8,7 +8,7 @@ export class AuthRoutes{
     static get routes(): Router{
         const router = Router();
 
-        const datasource = new AuthDatasourceImpl();
+        const datasource = new AuthPrismaDatasource();
         // Dependency Injection
         const AuthRepository = new AuthRepositoryImpl(datasource);
         const controller = new AuthController(AuthRepository);

@@ -1,14 +1,19 @@
-
-
-export class UserEntity{
+export class UserEntity {
     constructor(
-        public id: string,
-        public full_name: string,
+        public id: number,
         public email: string,
         public password: string,
-        public role: string[],
-        public createdAt: Date,
-        public department_clinic: string,
-        public passwordChangedAt?: Date,
-    ){}
+        public password_changed_at: Date,
+        public role_id: number,
+        public first_name: string,
+        public last_name: string,
+        public organization_id?: number,
+        public professional_id?: string,
+        public department?: string,
+        public phone?: string,
+        public is_active: boolean = true,
+        public last_login?: Date,
+        public created_at?: Date,
+        public updated_at?: Date,
+    ) {}
 }

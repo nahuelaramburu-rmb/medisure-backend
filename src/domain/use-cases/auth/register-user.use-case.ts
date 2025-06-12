@@ -6,8 +6,9 @@ import { AuthRepository } from "../../repositories/auth.repository";
 interface UserToken{
     token: string;
     user: {
-        id: string;
-        full_name: string;
+        id: number;
+        first_name: string;
+        last_name: string;
         email: string;
     };
 }
@@ -33,11 +34,13 @@ export class RegisterUser implements RegisterUserUseCase {
         if (!token) {
             throw CustomError.internalServerError("Failed to generate token");
         }
+        
         return {
             token: token, 
             user: {
                 id: user.id,
-                full_name: user.full_name,
+                first_name: user.first_name,
+                last_name: user.last_name,
                 email: user.email
             }
         };

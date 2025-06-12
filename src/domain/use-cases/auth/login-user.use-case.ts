@@ -6,7 +6,7 @@ import { UserEntity } from '../../entities/user.entity';
 interface UserToken{
     token: string;
     user: {
-        id: string;
+        id: number;
         full_name: string;
         email: string;
     };
@@ -38,14 +38,14 @@ export class LoginUser implements LoginUseUseCase {
             token: token,
             user: {
                 id: user.id,
-                full_name: user.full_name,
+                full_name: user.first_name + ' ' + user.last_name,
                 email: user.email
             }
         }
     }
-    private checkPasswordExpiration({passwordChangedAt,createdAt}:UserEntity ):boolean {
+    private checkPasswordExpiration({password_changed_at,created_at}:UserEntity ):boolean {
         const MAXDAYS = 90;
-        const lastChange = passwordChangedAt ?? createdAt ?? null;
+        const lastChange = password_changed_at ?? created_at ?? null;
         const daysSinceChange = (Date.now() - new Date(lastChange).getTime()) / (1000 * 60 * 60 * 24);
  
         return daysSinceChange > MAXDAYS;

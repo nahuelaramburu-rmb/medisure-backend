@@ -1,0 +1,814 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("POSTGRES_URL")
+}
+
+model access_tokens {
+  id                 Int       @id @default(autoincrement())
+  patient_id         Int
+  requesting_user_id Int
+  token              String    @unique @db.VarChar(255)
+  expires_at         DateTime  @db.Timestamp(6)
+  is_used            Boolean?  @default(false)
+  created_at         DateTime? @default(now()) @db.Timestamp(6)
+  patients           patients  @relation(fields: [patient_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users              users     @relation(fields: [requesting_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model adverse_events {
+  id                     Int             @id @default(autoincrement())
+  ae_id                  String          @unique @db.VarChar(100)
+  patient_id             Int
+  trial_id               Int
+  site_id                Int
+  reported_by_user_id    Int
+  event_term             String          @db.VarChar(500)
+  meddra_pt_code         String?         @db.VarChar(20)
+  meddra_soc             String?         @db.VarChar(100)
+  event_type             String?         @db.VarChar(10)
+  severity               String?         @db.VarChar(20)
+  seriousness_criteria   String[]        @db.VarChar(100)
+  start_date             DateTime        @db.Date
+  end_date               DateTime?       @db.Date
+  outcome                String?         @db.VarChar(50)
+  causality              String?         @db.VarChar(50)
+  action_taken           String?         @db.VarChar(100)
+  report_date            DateTime        @db.Date
+  followup_required      Boolean?        @default(false)
+  regulatory_reported    Boolean?        @default(false)
+  regulatory_report_date DateTime?       @db.Date
+  created_at             DateTime?       @default(now()) @db.Timestamp(6)
+  updated_at             DateTime?       @default(now()) @db.Timestamp(6)
+  patients               patients        @relation(fields: [patient_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users                  users           @relation(fields: [reported_by_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  research_sites         research_sites  @relation(fields: [site_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  clinical_trials        clinical_trials @relation(fields: [trial_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([report_date(sort: Desc)], map: "idx_adverse_events_date")
+  @@index([patient_id], map: "idx_adverse_events_patient")
+  @@index([severity], map: "idx_adverse_events_severity")
+  @@index([trial_id], map: "idx_adverse_events_trial")
+  @@index([event_type], map: "idx_adverse_events_type")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model alert_configurations {
+  id                   Int             @id @default(autoincrement())
+  created_by_user_id   Int
+  name                 String          @db.VarChar(255)
+  description          String?
+  alert_type           String?         @db.VarChar(50)
+  scope_type           String?         @db.VarChar(50)
+  scope_id             Int?
+  conditions           Json
+  notification_methods String[]        @default(["in_app"]) @db.VarChar(20)
+  recipient_user_ids   Int[]
+  recipient_role_ids   Int[]
+  is_active            Boolean?        @default(true)
+  last_triggered_at    DateTime?       @db.Timestamp(6)
+  created_at           DateTime?       @default(now()) @db.Timestamp(6)
+  updated_at           DateTime?       @default(now()) @db.Timestamp(6)
+  users                users           @relation(fields: [created_by_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  notifications        notifications[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model allergy_entities {
+  id                  Int                 @id @default(autoincrement())
+  extracted_entity_id Int?
+  allergen_type       String?             @db.VarChar(50)
+  allergen_name       String              @db.VarChar(255)
+  allergen_code       String?             @db.VarChar(50)
+  reaction_type       String?             @db.VarChar(255)
+  severity            String?             @db.VarChar(50)
+  onset_date          DateTime?           @db.Date
+  is_active           Boolean?            @default(true)
+  created_at          DateTime?           @default(now()) @db.Timestamp(6)
+  extracted_entities  extracted_entities? @relation(fields: [extracted_entity_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model audit_logs {
+  id                BigInt   @default(autoincrement())
+  user_id           Int?
+  action            String   @db.VarChar(100)
+  entity_type       String   @db.VarChar(50)
+  entity_id         Int?
+  entity_identifier String?  @db.VarChar(255)
+  old_values        Json?
+  new_values        Json?
+  metadata          Json?
+  ip_address        String?  @db.Inet
+  user_agent        String?
+  session_id        String?  @db.VarChar(255)
+  created_at        DateTime @default(now()) @db.Timestamp(6)
+  users             users?   @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([id, created_at])
+  @@index([entity_type, entity_id], map: "idx_audit_logs_entity")
+  @@index([user_id, action, created_at(sort: Desc)], map: "idx_audit_logs_user_action")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model clinical_trials {
+  id                        Int                     @id @default(autoincrement())
+  trial_id                  String                  @unique @db.VarChar(100)
+  protocol_id               String                  @db.VarChar(100)
+  title                     String                  @db.VarChar(500)
+  phase                     String?                 @db.VarChar(10)
+  status                    String?                 @default("planned") @db.VarChar(50)
+  sponsor_organization_id   Int?
+  principal_investigator_id Int?
+  therapeutic_area          String?                 @db.VarChar(100)
+  start_date                DateTime?               @db.Date
+  expected_end_date         DateTime?               @db.Date
+  actual_end_date           DateTime?               @db.Date
+  description               String?
+  created_at                DateTime?               @default(now()) @db.Timestamp(6)
+  updated_at                DateTime?               @default(now()) @db.Timestamp(6)
+  adverse_events            adverse_events[]
+  users                     users?                  @relation(fields: [principal_investigator_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  organizations             organizations?          @relation(fields: [sponsor_organization_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  documents                 documents[]
+  export_configurations     export_configurations[]
+  monitoring_visits         monitoring_visits[]
+  research_cohorts          research_cohorts[]
+  trial_criteria            trial_criteria[]
+  trial_endpoints           trial_endpoints[]
+  trial_enrollments         trial_enrollments[]
+  trial_milestones          trial_milestones[]
+  trial_sites               trial_sites[]
+
+  @@index([phase], map: "idx_trials_phase")
+  @@index([status], map: "idx_trials_status")
+}
+
+model cohort_patients {
+  id               Int              @id @default(autoincrement())
+  cohort_id        Int
+  patient_id       Int
+  added_at         DateTime?        @default(now()) @db.Timestamp(6)
+  added_by_user_id Int?
+  users            users?           @relation(fields: [added_by_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  research_cohorts research_cohorts @relation(fields: [cohort_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  patients         patients         @relation(fields: [patient_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([cohort_id, patient_id])
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model condition_entities {
+  id                  Int                 @id @default(autoincrement())
+  extracted_entity_id Int?
+  condition_name      String              @db.VarChar(255)
+  icd10_code          String?             @db.VarChar(10)
+  snomed_code         String?             @db.VarChar(20)
+  severity            String?             @db.VarChar(50)
+  onset_date          DateTime?           @db.Date
+  resolution_date     DateTime?           @db.Date
+  status              String?             @db.VarChar(50)
+  body_site           String?             @db.VarChar(100)
+  laterality          String?             @db.VarChar(20)
+  created_at          DateTime?           @default(now()) @db.Timestamp(6)
+  extracted_entities  extracted_entities? @relation(fields: [extracted_entity_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model data_quality_metrics {
+  id           Int       @id @default(autoincrement())
+  entity_type  String    @db.VarChar(50)
+  entity_id    Int
+  metric_type  String    @db.VarChar(50)
+  metric_name  String    @db.VarChar(100)
+  metric_value Decimal?  @db.Decimal(5, 2)
+  details      Json?
+  measured_at  DateTime  @db.Timestamp(6)
+  created_at   DateTime? @default(now()) @db.Timestamp(6)
+}
+
+model data_sharing_logs {
+  id                                                 Int       @id @default(autoincrement())
+  patient_id                                         Int
+  shared_by_user_id                                  Int
+  shared_with_user_id                                Int
+  sharing_reason                                     String    @db.VarChar(100)
+  data_categories                                    String[]  @db.VarChar(100)
+  shared_entity_types                                String[]  @db.VarChar(50)
+  shared_entity_ids                                  Int[]
+  consent_reference                                  String?   @db.VarChar(255)
+  legal_basis                                        String?   @db.VarChar(100)
+  retention_period_days                              Int?
+  expires_at                                         DateTime? @db.Timestamp(6)
+  revoked_at                                         DateTime? @db.Timestamp(6)
+  revoked_by_user_id                                 Int?
+  created_at                                         DateTime? @default(now()) @db.Timestamp(6)
+  patients                                           patients  @relation(fields: [patient_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users_data_sharing_logs_revoked_by_user_idTousers  users?    @relation("data_sharing_logs_revoked_by_user_idTousers", fields: [revoked_by_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users_data_sharing_logs_shared_by_user_idTousers   users     @relation("data_sharing_logs_shared_by_user_idTousers", fields: [shared_by_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users_data_sharing_logs_shared_with_user_idTousers users     @relation("data_sharing_logs_shared_with_user_idTousers", fields: [shared_with_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([patient_id, created_at(sort: Desc)], map: "idx_data_sharing_patient")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model doctor_patient_access {
+  id                                                    Int       @id @default(autoincrement())
+  doctor_id                                             Int
+  patient_id                                            Int
+  access_level                                          String?   @default("full") @db.VarChar(20)
+  granted_at                                            DateTime? @default(now()) @db.Timestamp(6)
+  granted_by_user_id                                    Int?
+  revoked_at                                            DateTime? @db.Timestamp(6)
+  users_doctor_patient_access_doctor_idTousers          users     @relation("doctor_patient_access_doctor_idTousers", fields: [doctor_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users_doctor_patient_access_granted_by_user_idTousers users?    @relation("doctor_patient_access_granted_by_user_idTousers", fields: [granted_by_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  patients                                              patients  @relation(fields: [patient_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([doctor_id, patient_id])
+  @@index([doctor_id, patient_id, access_level], map: "idx_doctor_patient_access_composite")
+}
+
+model document_annotations {
+  id                 Int       @id @default(autoincrement())
+  document_id        Int
+  created_by_user_id Int
+  page_number        Int?
+  section_name       String?   @db.VarChar(255)
+  annotation_text    String
+  x_position         Decimal?  @db.Decimal(8, 6)
+  y_position         Decimal?  @db.Decimal(8, 6)
+  mentioned_user_ids Int[]
+  is_resolved        Boolean?  @default(false)
+  created_at         DateTime? @default(now()) @db.Timestamp(6)
+  updated_at         DateTime? @default(now()) @db.Timestamp(6)
+  users              users     @relation(fields: [created_by_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  documents          documents @relation(fields: [document_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model document_versions {
+  id                  Int       @id @default(autoincrement())
+  document_id         Int
+  version             String    @db.VarChar(20)
+  change_description  String?
+  uploaded_by_user_id Int
+  r2_object_key       String    @db.VarChar(500)
+  created_at          DateTime? @default(now()) @db.Timestamp(6)
+  documents           documents @relation(fields: [document_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users               users     @relation(fields: [uploaded_by_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([document_id, version])
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model documents {
+  id                        Int                    @id @default(autoincrement())
+  patient_id                Int?
+  trial_id                  Int?
+  document_type             String                 @db.VarChar(50)
+  uploaded_by_user_id       Int
+  filename                  String                 @db.VarChar(255)
+  original_filename         String                 @db.VarChar(255)
+  file_type                 String?                @db.VarChar(10)
+  file_size                 Int?
+  version                   String?                @default("1.0") @db.VarChar(20)
+  r2_bucket_name            String?                @default("medisure-documents") @db.VarChar(100)
+  r2_object_key             String                 @db.VarChar(500)
+  processing_status         String?                @default("pending") @db.VarChar(20)
+  error_message             String?
+  is_standardized           Boolean?               @default(false)
+  standardization_technique String?                @db.VarChar(10)
+  created_at                DateTime?              @default(now()) @db.Timestamp(6)
+  updated_at                DateTime?              @default(now()) @db.Timestamp(6)
+  document_annotations      document_annotations[]
+  document_versions         document_versions[]
+  patients                  patients?              @relation(fields: [patient_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  clinical_trials           clinical_trials?       @relation(fields: [trial_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users                     users                  @relation(fields: [uploaded_by_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  entity_relationships      entity_relationships[]
+  extracted_entities        extracted_entities[]
+  monitoring_visits         monitoring_visits[]
+
+  @@index([created_at(sort: Desc)], map: "idx_documents_created")
+  @@index([patient_id], map: "idx_documents_patient")
+  @@index([trial_id], map: "idx_documents_trial")
+  @@index([document_type, processing_status], map: "idx_documents_type_status")
+}
+
+model entity_relationships {
+  id                                                                           Int                @id @default(autoincrement())
+  source_entity_id                                                             Int
+  target_entity_id                                                             Int
+  relationship_type                                                            String             @db.VarChar(100)
+  relationship_subtype                                                         String?            @db.VarChar(100)
+  confidence_score                                                             Decimal?           @db.Decimal(4, 3)
+  evidence_document_id                                                         Int?
+  created_at                                                                   DateTime?          @default(now()) @db.Timestamp(6)
+  documents                                                                    documents?         @relation(fields: [evidence_document_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  extracted_entities_entity_relationships_source_entity_idToextracted_entities extracted_entities @relation("entity_relationships_source_entity_idToextracted_entities", fields: [source_entity_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  extracted_entities_entity_relationships_target_entity_idToextracted_entities extracted_entities @relation("entity_relationships_target_entity_idToextracted_entities", fields: [target_entity_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model export_configurations {
+  id                  Int               @id @default(autoincrement())
+  name                String            @db.VarChar(255)
+  description         String?
+  created_by_user_id  Int
+  trial_id            Int?
+  cohort_id           Int?
+  export_format       String?           @db.VarChar(20)
+  selected_tables     String[]          @db.VarChar(50)
+  selected_variables  Json?
+  filter_criteria     Json?
+  anonymization_level String?           @default("full") @db.VarChar(20)
+  anonymization_rules Json?
+  delivery_method     String?           @db.VarChar(20)
+  delivery_config     Json?
+  is_recurring        Boolean?          @default(false)
+  schedule_cron       String?           @db.VarChar(100)
+  is_active           Boolean?          @default(true)
+  created_at          DateTime?         @default(now()) @db.Timestamp(6)
+  updated_at          DateTime?         @default(now()) @db.Timestamp(6)
+  research_cohorts    research_cohorts? @relation(fields: [cohort_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users               users             @relation(fields: [created_by_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  clinical_trials     clinical_trials?  @relation(fields: [trial_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  export_jobs         export_jobs[]
+
+  @@index([selected_variables], map: "idx_export_config_variables", type: Gin)
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model export_jobs {
+  id                      Int                   @id @default(autoincrement())
+  configuration_id        Int
+  requested_by_user_id    Int
+  status                  String?               @default("pending") @db.VarChar(20)
+  record_count            Int?
+  file_size_bytes         BigInt?
+  processing_time_seconds Int?
+  download_url            String?               @db.VarChar(600)
+  download_count          Int?                  @default(0)
+  error_message           String?
+  started_at              DateTime?             @db.Timestamp(6)
+  completed_at            DateTime?             @db.Timestamp(6)
+  expires_at              DateTime?             @db.Timestamp(6)
+  created_at              DateTime?             @default(now()) @db.Timestamp(6)
+  export_configurations   export_configurations @relation(fields: [configuration_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users                   users                 @relation(fields: [requested_by_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model extracted_entities {
+  id                                                                             Int                    @id @default(autoincrement())
+  patient_id                                                                     Int
+  document_id                                                                    Int?
+  entity_text                                                                    String                 @db.VarChar(500)
+  entity_type                                                                    String                 @db.VarChar(100)
+  confidence_score                                                               Decimal?               @db.Decimal(4, 3)
+  start_position                                                                 Int?
+  end_position                                                                   Int?
+  page_number                                                                    Int?
+  azure_category                                                                 String?                @db.VarChar(100)
+  created_at                                                                     DateTime?              @default(now()) @db.Timestamp(6)
+  allergy_entities                                                               allergy_entities[]
+  condition_entities                                                             condition_entities[]
+  entity_relationships_entity_relationships_source_entity_idToextracted_entities entity_relationships[] @relation("entity_relationships_source_entity_idToextracted_entities")
+  entity_relationships_entity_relationships_target_entity_idToextracted_entities entity_relationships[] @relation("entity_relationships_target_entity_idToextracted_entities")
+  documents                                                                      documents?             @relation(fields: [document_id], references: [id], onUpdate: NoAction)
+  patients                                                                       patients               @relation(fields: [patient_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  lab_result_entities                                                            lab_result_entities[]
+  medication_entities                                                            medication_entities[]
+
+  @@index([confidence_score(sort: Desc)], map: "idx_extracted_entities_confidence")
+  @@index([document_id], map: "idx_extracted_entities_document")
+  @@index([patient_id], map: "idx_extracted_entities_patient")
+  @@index([entity_type], map: "idx_extracted_entities_type")
+}
+
+model fhir_resources {
+  id               Int       @id @default(autoincrement())
+  patient_id       Int?
+  resource_type    String    @db.VarChar(50)
+  resource_id      String    @unique @db.VarChar(255)
+  resource_version Int?      @default(1)
+  resource_json    Json
+  last_updated     DateTime? @default(now()) @db.Timestamp(6)
+  created_at       DateTime? @default(now()) @db.Timestamp(6)
+  patients         patients? @relation(fields: [patient_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([resource_json], map: "idx_fhir_resources_json", type: Gin)
+}
+
+model lab_result_entities {
+  id                   Int                 @id @default(autoincrement())
+  extracted_entity_id  Int?
+  test_name            String              @db.VarChar(255)
+  loinc_code           String?             @db.VarChar(20)
+  result_value         Decimal?            @db.Decimal(15, 5)
+  result_unit          String?             @db.VarChar(50)
+  result_text          String?             @db.VarChar(255)
+  reference_range_low  Decimal?            @db.Decimal(15, 5)
+  reference_range_high Decimal?            @db.Decimal(15, 5)
+  abnormal_flag        String?             @db.VarChar(10)
+  collection_date      DateTime?           @db.Timestamp(6)
+  performing_lab       String?             @db.VarChar(255)
+  created_at           DateTime?           @default(now()) @db.Timestamp(6)
+  extracted_entities   extracted_entities? @relation(fields: [extracted_entity_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model medical_data_changes {
+  id                                                    Int       @id @default(autoincrement())
+  table_name                                            String    @db.VarChar(50)
+  record_id                                             Int
+  operation                                             String    @db.VarChar(10)
+  changed_fields                                        String[]  @db.VarChar(100)
+  old_values                                            Json?
+  new_values                                            Json?
+  change_reason                                         String?
+  changed_by_user_id                                    Int?
+  changed_at                                            DateTime? @default(now()) @db.Timestamp(6)
+  reviewed_by_user_id                                   Int?
+  reviewed_at                                           DateTime? @db.Timestamp(6)
+  users_medical_data_changes_changed_by_user_idTousers  users?    @relation("medical_data_changes_changed_by_user_idTousers", fields: [changed_by_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users_medical_data_changes_reviewed_by_user_idTousers users?    @relation("medical_data_changes_reviewed_by_user_idTousers", fields: [reviewed_by_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model medication_entities {
+  id                                                                                   Int                       @id @default(autoincrement())
+  extracted_entity_id                                                                  Int?
+  medication_name                                                                      String                    @db.VarChar(255)
+  generic_name                                                                         String?                   @db.VarChar(255)
+  rxnorm_code                                                                          String?                   @db.VarChar(20)
+  ndc_code                                                                             String?                   @db.VarChar(20)
+  dosage_value                                                                         Decimal?                  @db.Decimal(10, 3)
+  dosage_unit                                                                          String?                   @db.VarChar(50)
+  frequency_value                                                                      Int?
+  frequency_unit                                                                       String?                   @db.VarChar(50)
+  route                                                                                String?                   @db.VarChar(100)
+  start_date                                                                           DateTime?                 @db.Date
+  end_date                                                                             DateTime?                 @db.Date
+  prescribing_provider                                                                 String?                   @db.VarChar(255)
+  is_active                                                                            Boolean?                  @default(true)
+  created_at                                                                           DateTime?                 @default(now()) @db.Timestamp(6)
+  extracted_entities                                                                   extracted_entities?       @relation(fields: [extracted_entity_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  medication_interactions_medication_interactions_medication_1_idTomedication_entities medication_interactions[] @relation("medication_interactions_medication_1_idTomedication_entities")
+  medication_interactions_medication_interactions_medication_2_idTomedication_entities medication_interactions[] @relation("medication_interactions_medication_2_idTomedication_entities")
+
+  @@index([medication_name], map: "idx_medication_entities_name")
+  @@index([rxnorm_code], map: "idx_medication_entities_rxnorm")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model medication_interactions {
+  id                                                                               Int                 @id @default(autoincrement())
+  medication_1_id                                                                  Int
+  medication_2_id                                                                  Int
+  interaction_type                                                                 String?             @db.VarChar(50)
+  clinical_consequence                                                             String?
+  management_strategy                                                              String?
+  evidence_level                                                                   String?             @db.VarChar(20)
+  source                                                                           String?             @db.VarChar(100)
+  created_at                                                                       DateTime?           @default(now()) @db.Timestamp(6)
+  medication_entities_medication_interactions_medication_1_idTomedication_entities medication_entities @relation("medication_interactions_medication_1_idTomedication_entities", fields: [medication_1_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  medication_entities_medication_interactions_medication_2_idTomedication_entities medication_entities @relation("medication_interactions_medication_2_idTomedication_entities", fields: [medication_2_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([medication_1_id, medication_2_id])
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model monitoring_findings {
+  id                  Int               @id @default(autoincrement())
+  visit_id            Int
+  finding_type        String?           @db.VarChar(50)
+  severity            String?           @db.VarChar(20)
+  description         String
+  corrective_action   String?
+  preventive_action   String?
+  responsible_user_id Int?
+  due_date            DateTime?         @db.Date
+  completion_date     DateTime?         @db.Date
+  status              String?           @default("open") @db.VarChar(20)
+  created_at          DateTime?         @default(now()) @db.Timestamp(6)
+  updated_at          DateTime?         @default(now()) @db.Timestamp(6)
+  users               users?            @relation(fields: [responsible_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  monitoring_visits   monitoring_visits @relation(fields: [visit_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model monitoring_visits {
+  id                  Int                   @id @default(autoincrement())
+  trial_id            Int
+  site_id             Int
+  visit_type          String?               @db.VarChar(20)
+  visit_purpose       String?               @db.VarChar(50)
+  scheduled_date      DateTime              @db.Date
+  actual_date         DateTime?             @db.Date
+  status              String?               @default("scheduled") @db.VarChar(20)
+  monitor_user_id     Int?
+  duration_hours      Decimal?              @db.Decimal(4, 2)
+  report_document_id  Int?
+  created_at          DateTime?             @default(now()) @db.Timestamp(6)
+  updated_at          DateTime?             @default(now()) @db.Timestamp(6)
+  monitoring_findings monitoring_findings[]
+  users               users?                @relation(fields: [monitor_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  documents           documents?            @relation(fields: [report_document_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  research_sites      research_sites        @relation(fields: [site_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  clinical_trials     clinical_trials       @relation(fields: [trial_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model notifications {
+  id                     Int                   @id @default(autoincrement())
+  user_id                Int
+  alert_configuration_id Int?
+  title                  String                @db.VarChar(255)
+  message                String
+  notification_type      String?               @default("info") @db.VarChar(50)
+  priority               String?               @default("normal") @db.VarChar(20)
+  is_read                Boolean?              @default(false)
+  read_at                DateTime?             @db.Timestamp(6)
+  is_archived            Boolean?              @default(false)
+  related_entity_type    String?               @db.VarChar(50)
+  related_entity_id      Int?
+  action_url             String?               @db.VarChar(500)
+  created_at             DateTime?             @default(now()) @db.Timestamp(6)
+  alert_configurations   alert_configurations? @relation(fields: [alert_configuration_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users                  users                 @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([created_at(sort: Desc)], map: "idx_notifications_created")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model organizations {
+  id                     Int               @id @default(autoincrement())
+  name                   String            @db.VarChar(255)
+  organization_type      String?           @db.VarChar(50)
+  parent_organization_id Int?
+  address                String?
+  country                String?           @db.VarChar(100)
+  regulatory_identifier  String?           @db.VarChar(100)
+  is_active              Boolean?          @default(true)
+  created_at             DateTime?         @default(now()) @db.Timestamp(6)
+  updated_at             DateTime?         @default(now()) @db.Timestamp(6)
+  clinical_trials        clinical_trials[]
+  organizations          organizations?    @relation("organizationsToorganizations", fields: [parent_organization_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  other_organizations    organizations[]   @relation("organizationsToorganizations")
+  research_sites         research_sites[]
+  users                  users[]
+}
+
+model patient_consent_logs {
+  id                 Int       @id @default(autoincrement())
+  patient_id         Int
+  previous_status    String?   @db.VarChar(20)
+  new_status         String    @db.VarChar(20)
+  changed_by_user_id Int?
+  reason             String?
+  created_at         DateTime? @default(now()) @db.Timestamp(6)
+  users              users?    @relation(fields: [changed_by_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  patients           patients  @relation(fields: [patient_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model patients {
+  id                      Int                     @id @default(autoincrement())
+  user_id                 Int?
+  medical_record_number   String?                 @unique @db.VarChar(100)
+  first_name              String                  @db.VarChar(100)
+  last_name               String                  @db.VarChar(100)
+  date_of_birth           DateTime?               @db.Date
+  gender                  String?                 @db.VarChar(50)
+  blood_type              String?                 @db.VarChar(5)
+  emergency_contact_name  String?                 @db.VarChar(255)
+  emergency_contact_phone String?                 @db.VarChar(20)
+  consent_status          String?                 @default("granted") @db.VarChar(20)
+  consent_date            DateTime?               @db.Timestamp(6)
+  created_at              DateTime?               @default(now()) @db.Timestamp(6)
+  updated_at              DateTime?               @default(now()) @db.Timestamp(6)
+  access_tokens           access_tokens[]
+  adverse_events          adverse_events[]
+  cohort_patients         cohort_patients[]
+  data_sharing_logs       data_sharing_logs[]
+  doctor_patient_access   doctor_patient_access[]
+  documents               documents[]
+  extracted_entities      extracted_entities[]
+  fhir_resources          fhir_resources[]
+  patient_consent_logs    patient_consent_logs[]
+  users                   users?                  @relation(fields: [user_id], references: [id], onUpdate: NoAction)
+  trial_enrollments       trial_enrollments[]
+
+  @@index([medical_record_number], map: "idx_patients_mrn")
+}
+
+model research_cohorts {
+  id                    Int                     @id @default(autoincrement())
+  name                  String                  @db.VarChar(255)
+  description           String?
+  created_by_user_id    Int
+  trial_id              Int?
+  inclusion_criteria    Json?
+  exclusion_criteria    Json?
+  is_public             Boolean?                @default(false)
+  created_at            DateTime?               @default(now()) @db.Timestamp(6)
+  updated_at            DateTime?               @default(now()) @db.Timestamp(6)
+  cohort_patients       cohort_patients[]
+  export_configurations export_configurations[]
+  users                 users                   @relation(fields: [created_by_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  clinical_trials       clinical_trials?        @relation(fields: [trial_id], references: [id], onUpdate: NoAction)
+}
+
+model research_sites {
+  id                                                    Int                 @id @default(autoincrement())
+  site_id                                               String              @unique @db.VarChar(100)
+  name                                                  String              @db.VarChar(255)
+  organization_id                                       Int?
+  country                                               String?             @db.VarChar(100)
+  region                                                String?             @db.VarChar(100)
+  address                                               String?
+  principal_investigator_id                             Int?
+  coordinator_id                                        Int?
+  activation_status                                     String?             @default("pending") @db.VarChar(50)
+  created_at                                            DateTime?           @default(now()) @db.Timestamp(6)
+  updated_at                                            DateTime?           @default(now()) @db.Timestamp(6)
+  adverse_events                                        adverse_events[]
+  monitoring_visits                                     monitoring_visits[]
+  users_research_sites_coordinator_idTousers            users?              @relation("research_sites_coordinator_idTousers", fields: [coordinator_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  organizations                                         organizations?      @relation(fields: [organization_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users_research_sites_principal_investigator_idTousers users?              @relation("research_sites_principal_investigator_idTousers", fields: [principal_investigator_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  trial_enrollments                                     trial_enrollments[]
+  trial_sites                                           trial_sites[]
+}
+
+model roles {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique @db.VarChar(50)
+  description String?
+  permissions Json?
+  created_at  DateTime? @default(now()) @db.Timestamp(6)
+  users       users[]
+}
+
+model status_transitions {
+  id                  Int       @id @default(autoincrement())
+  context             String    @db.VarChar(50)
+  from_status         String?   @db.VarChar(50)
+  to_status           String    @db.VarChar(50)
+  requires_permission String?   @db.VarChar(100)
+  requires_comment    Boolean?  @default(false)
+  validation_function String?   @db.VarChar(100)
+  created_at          DateTime? @default(now()) @db.Timestamp(6)
+
+  @@unique([context, from_status, to_status])
+}
+
+model status_types {
+  id            Int       @id @default(autoincrement())
+  context       String    @db.VarChar(50)
+  status_code   String    @db.VarChar(50)
+  display_name  String?   @db.VarChar(100)
+  description   String?
+  display_order Int?
+  is_active     Boolean?  @default(true)
+  is_terminal   Boolean?  @default(false)
+  created_at    DateTime? @default(now()) @db.Timestamp(6)
+
+  @@unique([context, status_code])
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model trial_criteria {
+  id              Int             @id @default(autoincrement())
+  trial_id        Int
+  criteria_type   String?         @db.VarChar(20)
+  category        String?         @db.VarChar(100)
+  operator        String?         @db.VarChar(20)
+  value           Json?
+  description     String?
+  order_index     Int?
+  created_at      DateTime?       @default(now()) @db.Timestamp(6)
+  clinical_trials clinical_trials @relation(fields: [trial_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([value], map: "idx_trial_criteria_value", type: Gin)
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model trial_endpoints {
+  id                 Int             @id @default(autoincrement())
+  trial_id           Int
+  endpoint_type      String?         @db.VarChar(20)
+  name               String          @db.VarChar(255)
+  description        String?
+  measurement_type   String?         @db.VarChar(50)
+  unit_of_measure    String?         @db.VarChar(50)
+  timepoint          String?         @db.VarChar(100)
+  statistical_method String?         @db.VarChar(100)
+  order_index        Int?
+  created_at         DateTime?       @default(now()) @db.Timestamp(6)
+  clinical_trials    clinical_trials @relation(fields: [trial_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model trial_enrollments {
+  id                   Int             @id @default(autoincrement())
+  trial_id             Int
+  site_id              Int
+  patient_id           Int
+  enrollment_date      DateTime        @db.Date
+  randomization_date   DateTime?       @db.Date
+  randomization_number String?         @db.VarChar(50)
+  treatment_arm        String?         @db.VarChar(100)
+  status               String?         @default("enrolled") @db.VarChar(50)
+  withdrawal_date      DateTime?       @db.Date
+  withdrawal_reason    String?
+  completion_date      DateTime?       @db.Date
+  created_at           DateTime?       @default(now()) @db.Timestamp(6)
+  updated_at           DateTime?       @default(now()) @db.Timestamp(6)
+  patients             patients        @relation(fields: [patient_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  research_sites       research_sites  @relation(fields: [site_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  clinical_trials      clinical_trials @relation(fields: [trial_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([trial_id, patient_id])
+  @@index([trial_id, patient_id, status], map: "idx_trial_enrollments_composite")
+  @@index([site_id], map: "idx_trial_enrollments_site")
+}
+
+model trial_milestones {
+  id                       Int                @id @default(autoincrement())
+  trial_id                 Int
+  milestone_type           String             @db.VarChar(100)
+  description              String?            @db.VarChar(500)
+  planned_date             DateTime?          @db.Date
+  actual_date              DateTime?          @db.Date
+  status                   String?            @default("pending") @db.VarChar(20)
+  responsible_user_id      Int?
+  predecessor_milestone_id Int?
+  notes                    String?
+  created_at               DateTime?          @default(now()) @db.Timestamp(6)
+  updated_at               DateTime?          @default(now()) @db.Timestamp(6)
+  trial_milestones         trial_milestones?  @relation("trial_milestonesTotrial_milestones", fields: [predecessor_milestone_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  other_trial_milestones   trial_milestones[] @relation("trial_milestonesTotrial_milestones")
+  users                    users?             @relation(fields: [responsible_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  clinical_trials          clinical_trials    @relation(fields: [trial_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model trial_sites {
+  id                     Int             @id @default(autoincrement())
+  trial_id               Int
+  site_id                Int
+  site_activation_date   DateTime?       @db.Date
+  site_target_enrollment Int?
+  last_enrollment_date   DateTime?       @db.Date
+  research_sites         research_sites  @relation(fields: [site_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  clinical_trials        clinical_trials @relation(fields: [trial_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([trial_id, site_id])
+}
+
+model users {
+  id                                                                    Int                     @id @default(autoincrement())
+  email                                                                 String                  @unique @db.VarChar(255)
+  password_hash                                                         String                  @db.VarChar(255)
+  role_id                                                               Int
+  organization_id                                                       Int?
+  first_name                                                            String?                 @db.VarChar(100)
+  last_name                                                             String?                 @db.VarChar(100)
+  professional_id                                                       String?                 @db.VarChar(100)
+  department                                                            String?                 @db.VarChar(100)
+  phone                                                                 String?                 @db.VarChar(20)
+  is_active                                                             Boolean?                @default(true)
+  last_login                                                            DateTime?               @db.Timestamp(6)
+  created_at                                                            DateTime?               @default(now()) @db.Timestamp(6)
+  updated_at                                                            DateTime?               @default(now()) @db.Timestamp(6)
+  password_changed_at                                                   DateTime?               @db.Date
+  access_tokens                                                         access_tokens[]
+  adverse_events                                                        adverse_events[]
+  alert_configurations                                                  alert_configurations[]
+  audit_logs                                                            audit_logs[]
+  clinical_trials                                                       clinical_trials[]
+  cohort_patients                                                       cohort_patients[]
+  data_sharing_logs_data_sharing_logs_revoked_by_user_idTousers         data_sharing_logs[]     @relation("data_sharing_logs_revoked_by_user_idTousers")
+  data_sharing_logs_data_sharing_logs_shared_by_user_idTousers          data_sharing_logs[]     @relation("data_sharing_logs_shared_by_user_idTousers")
+  data_sharing_logs_data_sharing_logs_shared_with_user_idTousers        data_sharing_logs[]     @relation("data_sharing_logs_shared_with_user_idTousers")
+  doctor_patient_access_doctor_patient_access_doctor_idTousers          doctor_patient_access[] @relation("doctor_patient_access_doctor_idTousers")
+  doctor_patient_access_doctor_patient_access_granted_by_user_idTousers doctor_patient_access[] @relation("doctor_patient_access_granted_by_user_idTousers")
+  document_annotations                                                  document_annotations[]
+  document_versions                                                     document_versions[]
+  documents                                                             documents[]
+  export_configurations                                                 export_configurations[]
+  export_jobs                                                           export_jobs[]
+  medical_data_changes_medical_data_changes_changed_by_user_idTousers   medical_data_changes[]  @relation("medical_data_changes_changed_by_user_idTousers")
+  medical_data_changes_medical_data_changes_reviewed_by_user_idTousers  medical_data_changes[]  @relation("medical_data_changes_reviewed_by_user_idTousers")
+  monitoring_findings                                                   monitoring_findings[]
+  monitoring_visits                                                     monitoring_visits[]
+  notifications                                                         notifications[]
+  patient_consent_logs                                                  patient_consent_logs[]
+  patients                                                              patients[]
+  research_cohorts                                                      research_cohorts[]
+  research_sites_research_sites_coordinator_idTousers                   research_sites[]        @relation("research_sites_coordinator_idTousers")
+  research_sites_research_sites_principal_investigator_idTousers        research_sites[]        @relation("research_sites_principal_investigator_idTousers")
+  trial_milestones                                                      trial_milestones[]
+  organizations                                                         organizations?          @relation(fields: [organization_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  roles                                                                 roles                   @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}

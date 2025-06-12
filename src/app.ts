@@ -1,9 +1,9 @@
 import { envs } from './config/envs';
-import { MongoDatabase } from './data/mongodb';
 import { AppRoutes } from './presentation/routes';
 import { Server } from "./presentation/server";
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './swagger';
+import { prisma } from './data/postgres';
 
 
 
@@ -12,11 +12,13 @@ import { swaggerSpec } from './swagger';
 })()
 
 async function main(){
-    //todo: await db
-    await MongoDatabase.connect({
-        dbName: envs.MONGO_DB_NAME,
-        mongoUrl: envs.MONGO_URL,
-    })
+    try {
+        await prisma.$connect();
+        console.log('Connected to Postgres database');
+    }catch(error){
+        console.error('Error connecting to Postgres database:', error);
+        process.exit(1); // Exit the process if connection fails
+    }
 
     // Swagger middleware
     const swaggerMiddleware = {

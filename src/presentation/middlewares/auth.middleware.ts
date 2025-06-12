@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { JwtAdapter } from "../../config";
-import { UserModel } from "../../data/mongodb";
-
+import { prisma } from "../../data/postgres";
 // Extend the Request interface to include user or define a proper User type
 declare global {
     namespace Express {
@@ -28,14 +27,14 @@ export class AuthMiddleware {
         const token = authorization.split(' ')[1]; // Cleaner way to get token
         
         try {
-            const payload = await JwtAdapter.validateToken<{ id: string }>(token);
+            const payload = await JwtAdapter.validateToken<{ id: number }>(token);
             
             if (!payload) {
                 res.status(401).json({ error: 'Invalid Token' });
                 return;
             }
             
-            const user = await UserModel.findById(payload.id);
+            const user = await prisma.users.findUnique({where: { id: payload.id }});
             
             if (!user) {
                 res.status(401).json({ error: 'User not found' });

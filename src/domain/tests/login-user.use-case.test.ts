@@ -7,12 +7,12 @@ describe('LoginUser - password expired', () => {
     name: 'Test',
     email: 'test@mail.com',
     password: 'Password123!',
-    createdAt: new Date(),
-    passwordChangedAt: undefined,
+    created_at: new Date(),
+    password_changed_at: undefined,
   };
 
   it('Should accept the password if it was create before 90 days', async () => {
-    const user = { ...baseUser, passwordChangedAt: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000) }; // 60 days ago
+    const user = { ...baseUser, password_changed_at: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000) }; // 60 days ago
     const mockRepo = { login: jest.fn().mockResolvedValue(user) };
 
     const useCase = new LoginUser(mockRepo as any, mockSignedToken);
@@ -21,7 +21,7 @@ describe('LoginUser - password expired', () => {
   });
 
   it('should reject if the password was created 90 days ago', async () => {
-    const user = { ...baseUser, passwordChangedAt: new Date(Date.now() - 100 * 24 * 60 * 60 * 1000) }; // 100 días atrás
+    const user = { ...baseUser, password_changed_at: new Date(Date.now() - 100 * 24 * 60 * 60 * 1000) }; // 100 días atrás
     const mockRepo = { login: jest.fn().mockResolvedValue(user) };
 
     const useCase = new LoginUser(mockRepo as any, mockSignedToken);
