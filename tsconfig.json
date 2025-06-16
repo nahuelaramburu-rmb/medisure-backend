@@ -1,4 +1,24 @@
 {
+  "exclude":[
+    "node_modules",
+    "dist",
+    "coverage",
+    "build",
+    "out",
+    "lib",
+    "tmp",
+    "temp",
+    "**/*.spec.ts",
+    "**/*.test.ts",
+    "**/*.d.ts"
+  ],
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.mts",
+    "src/**/*.cts",
+    "src/**/*.json"
+  ],
   "compilerOptions": {
     /* Visit https://aka.ms/tsconfig to read more about this file */
 

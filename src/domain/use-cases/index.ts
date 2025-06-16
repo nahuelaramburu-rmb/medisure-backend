@@ -8,3 +8,5 @@ export * from './roles/get-roles';
 export * from './roles/get-role-by-id'; 
 export * from './roles/delete-role';
 export * from './roles/update-role';
+
+export * from './clinical-trials/get-clinical.trials';

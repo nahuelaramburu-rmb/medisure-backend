@@ -6,7 +6,7 @@ import { UserEntity } from '../../entities/user.entity';
 interface UserToken{
     token: string;
     user: {
-        id: number;
+        id: string;
         full_name: string;
         email: string;
     };

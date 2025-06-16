@@ -2,7 +2,7 @@
 
 export class UpdateRoleDto{
     private constructor(
-        public id: number,
+        public id: string,
         public name: string,
         public permissions: object, 
         public description?: string,

@@ -5,7 +5,7 @@ import { RoleRepository } from "../../repositories/role.repository";
 
 
 export interface GetRoleByIdUseCase {
-    execute(id: number): Promise<RoleEntity>;
+    execute(id: string): Promise<RoleEntity>;
 }
 
 export class GetRoleById implements GetRoleByIdUseCase{
@@ -13,7 +13,7 @@ export class GetRoleById implements GetRoleByIdUseCase{
         private readonly roleRepository: RoleRepository,
     ){}
 
-    execute(id: number): Promise<RoleEntity> {
+    execute(id: string): Promise<RoleEntity> {
         return this.roleRepository.getById(id);
     }
 

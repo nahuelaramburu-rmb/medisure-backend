@@ -5,3 +5,6 @@ export * from './auth/register-user.dto';
 
 export * from './roles/create-role.dto';
 export * from './roles/update-role.dto';
+
+export * from './clinicalTrial/create-clinical.trial-dto'
+export * from './clinicalTrial/update-clinical.trial-dto';

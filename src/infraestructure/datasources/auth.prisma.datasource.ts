@@ -13,7 +13,7 @@ export class AuthPrismaDatasource implements AuthDatasource {
     ) { }
 
     async register(registerUserDto: RegisterUserDto): Promise<UserEntity> {
-        let { email, password, role_id, department, first_name, last_name, phone, professional_id } = registerUserDto;
+        let { email, password, role_id, department, first_name, last_name, professional_id  } = registerUserDto;
         try {
             // 1. Verify if the user already exists
             const exist = await prisma.users.findUnique({ where: { email } });
@@ -30,6 +30,7 @@ export class AuthPrismaDatasource implements AuthDatasource {
             // 4. Hash the password
             const hashedPassword = this.hashPassword(password);
             // 5. Create the user
+            console.log(email)
             const user = await prisma.users.create({
                 data: {
                     email,
@@ -38,7 +39,6 @@ export class AuthPrismaDatasource implements AuthDatasource {
                     department,
                     first_name,
                     last_name,
-                    phone,
                     professional_id,
                     password_changed_at: new Date(), // <-- fecha de primer cambio de contraseña
                 }

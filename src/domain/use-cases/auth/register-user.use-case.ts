@@ -6,10 +6,13 @@ import { AuthRepository } from "../../repositories/auth.repository";
 interface UserToken{
     token: string;
     user: {
-        id: number;
+        id: string;
+        email: string;
+        role_id: string;
         first_name: string;
         last_name: string;
-        email: string;
+        profesional_id:string;
+        department: string;
     };
 }
 
@@ -39,9 +42,13 @@ export class RegisterUser implements RegisterUserUseCase {
             token: token, 
             user: {
                 id: user.id,
+                email: user.email,
+                role_id: user.role_id,
                 first_name: user.first_name,
                 last_name: user.last_name,
-                email: user.email
+                profesional_id: user.professional_id ?? "",
+                department: user.department ?? ""
+
             }
         };
     }

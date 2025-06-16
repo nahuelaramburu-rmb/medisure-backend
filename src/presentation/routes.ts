@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { AuthRoutes } from "./auth/routes";
 import { RoleRoutes } from "./role/routes";
+import { ClinicalTrialRoutes } from "./clinical_trial/routes";
 
 export class AppRoutes{
     static get routes(): Router{
@@ -8,6 +9,8 @@ export class AppRoutes{
 
         router.use('/v1/api/auth', AuthRoutes.routes);
         router.use('/v1/api/roles', RoleRoutes.routes);
+        router.use('/v1/api/clinical-trials', ClinicalTrialRoutes.routes);
+        
         return router;
     }
 }

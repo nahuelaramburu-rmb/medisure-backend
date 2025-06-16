@@ -20,23 +20,23 @@ export class RoleDataSourceImp implements RoleDataSource {
         
         return RoleMapper.RoleEntityFromObject(role); 
     }
-    async getRoleById(roleId: number): Promise<RoleEntity> {
+    async getRoleById(roleId: string): Promise<RoleEntity> {
         const role = await prisma.roles.findFirst({ where: { id: roleId } });
         if (!role) throw CustomError.notFound(`Role: ${roleId}  not found`);
         return RoleEntity.fromObject(role);
     }
     async updateRole(updateRoleDto: UpdateRoleDto): Promise<RoleEntity> {
         await this.getRoleById(updateRoleDto.id);
-
+        //TODO:name validation
         const updatedRole = await prisma.roles.update({
             where : { id : updateRoleDto.id },
             data: updateRoleDto!.values
         }); 
 
-        return RoleEntity.fromObject(updateRoleDto);
+        return RoleEntity.fromObject(updatedRole);
     }
 
-    async deleteRole(roleId: number): Promise<RoleEntity> {
+    async deleteRole(roleId: string): Promise<RoleEntity> {
         await this.getRoleById(roleId);
         const deleted = await prisma.roles.delete({
             where: { id: roleId }

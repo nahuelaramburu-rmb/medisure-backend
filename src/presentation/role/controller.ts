@@ -9,7 +9,7 @@ export class RoleController{
     ){}
 
     updateRole = async (req: Request, res: Response)=>{
-        const id = +req.params.id;
+        const id = req.params.id;
         const [error, updateRoleDto] = UpdateRoleDto.create({...req.body, id});
         if (error) return res.status(400).json({ error });
         
@@ -71,7 +71,7 @@ export class RoleController{
     }
 
     getRoleById = (req: Request, res: Response) => {
-        const id = +req.params.id;
+        const id = req.params.id;
         new GetRoleById(this.roleRepository)
             .execute(id)
             .then((data) => {
@@ -90,7 +90,7 @@ export class RoleController{
         }
 
     deleteRole = async (req:Request, res: Response)=>{
-        const id = +req.params.id;
+        const id = req.params.id;
         
         new DeleteRole(this.roleRepository)
             .execute(id)

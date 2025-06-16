@@ -11,13 +11,13 @@ export class RoleRepositoryImpl implements RoleRepository {
     getAll(): Promise<RoleEntity[]> {
         return this.roleDatasource.getAllRoles();
     }
-    getById(id: number): Promise<RoleEntity> {
+    getById(id: string): Promise<RoleEntity> {
         return this.roleDatasource.getRoleById(id);
     }
     updatedById(updateRoleDto: UpdateRoleDto): Promise<RoleEntity> {
         return this.roleDatasource.updateRole(updateRoleDto);
     }
-    deleteById(id: number): Promise<RoleEntity> {
+    deleteById(id: string): Promise<RoleEntity> {
         return this.roleDatasource.deleteRole(id);
     }
     

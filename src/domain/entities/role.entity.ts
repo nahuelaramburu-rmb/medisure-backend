@@ -2,7 +2,7 @@
 
 export class RoleEntity {
     constructor(
-        public id: number,
+        public id: string,
         public name: string,
         public permissions: any, // Puedes usar 'any' para JSONB, o un tipo más específico como 'object'
         public description?: string,

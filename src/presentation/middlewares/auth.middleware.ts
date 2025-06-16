@@ -27,7 +27,7 @@ export class AuthMiddleware {
         const token = authorization.split(' ')[1]; // Cleaner way to get token
         
         try {
-            const payload = await JwtAdapter.validateToken<{ id: number }>(token);
+            const payload = await JwtAdapter.validateToken<{ id: string }>(token);
             
             if (!payload) {
                 res.status(401).json({ error: 'Invalid Token' });

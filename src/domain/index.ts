@@ -10,8 +10,9 @@ export * from './entities/role.entity';
 export * from './errors/custom.error'; 
 
 export * from './repositories/auth.repository';
-export * from './datasources/auth.datasource';
-
 export * from './repositories/role.repository';
+export * from './repositories/clinical-trial.repository';
+
+export * from './datasources/auth.datasource';
 export * from './datasources/role.datasource';
 
