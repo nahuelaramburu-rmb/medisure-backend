@@ -2,12 +2,13 @@ export * from './use-cases'
 
 export * from './dtos';
 
+export * from './enums'
 
 export * from './entities/user.entity';
 export * from './entities/role.entity';
 export * from './entities/clinical-trial.entity';
 export * from './entities/patients.entity';
-
+export * from './entities/appointment.entity';
 
 export * from './errors/custom.error'; 
 
