@@ -5,6 +5,8 @@ export * from './dtos';
 
 export * from './entities/user.entity';
 export * from './entities/role.entity';
+export * from './entities/clinical-trial.entity';
+export * from './entities/patients.entity';
 
 
 export * from './errors/custom.error'; 
@@ -12,7 +14,10 @@ export * from './errors/custom.error';
 export * from './repositories/auth.repository';
 export * from './repositories/role.repository';
 export * from './repositories/clinical-trial.repository';
+export * from './repositories/patient.repository';
 
 export * from './datasources/auth.datasource';
 export * from './datasources/role.datasource';
+export * from './datasources/clinical-trial.datasource';
+export * from './datasources/patient.datasource';
 

@@ -8,3 +8,6 @@ export * from './roles/update-role.dto';
 
 export * from './clinicalTrial/create-clinical.trial-dto'
 export * from './clinicalTrial/update-clinical.trial-dto';
+
+export * from './patients/create-patient.dto';
+export * from './patients/update-patient.dto';

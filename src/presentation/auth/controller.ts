@@ -4,6 +4,7 @@ import { LoginUser } from '../../domain/use-cases/auth/login-user.use-case';
 import { ChangePassword } from '../../domain/use-cases/auth/change-password-use.case';
 import { logger } from '../../config/logger';
 import { prisma } from '../../data/postgres';
+import { handleError } from '../helpers/errors';
 
 
 export class AuthController {
@@ -13,13 +14,7 @@ export class AuthController {
     ) {}
 
 
-    private handleError = (error: unknown, res: Response ) =>{
-        if (error instanceof CustomError) {
-            return res.status(error.statusCode).json({ error: error.message });
-        }
-        console.log(error);
-        return res.status(500).json({ error: 'Internal Server Error' });
-    }
+    
 
     loginUser = async( req: Request, res:Response)=>{
         const [error, loginUserDto] = LoginUserDto.create(req.body);
@@ -33,7 +28,7 @@ export class AuthController {
             })
             .catch( error => {
                 logger.warn(`Failed to login user: ${loginUserDto!.email}`);
-                this.handleError(error, res) 
+                handleError(error, res) 
             });
 
     }
@@ -47,7 +42,7 @@ export class AuthController {
             })
             .catch(error => {
                 logger.error(`Failed to logout user: ${error}`);
-                this.handleError(error, res);
+                handleError(error, res);
             });
     }
 
@@ -62,7 +57,7 @@ export class AuthController {
                 res.json(data) 
             })
             .catch( error => {
-                this.handleError(error, res) 
+                handleError(error, res) 
             });            
     }
 
@@ -76,7 +71,7 @@ export class AuthController {
                 msg: 'ok',
                 data
             }))
-            .catch( error => this.handleError(error, res) );
+            .catch( error => handleError(error, res) );
     }
 
     getUsers = (req: Request, res: Response) => {
@@ -86,6 +81,6 @@ export class AuthController {
                         users,
                         //user: req.body.user 
                     }))
-            .catch(error => this.handleError(error, res));
+            .catch(error => handleError(error, res));
     }
 }

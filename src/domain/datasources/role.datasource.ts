@@ -1,6 +1,4 @@
-import { RoleEntity } from "../entities/role.entity";
-import { CreateRoleDto } from '../dtos/roles/create-role.dto';
-import { UpdateRoleDto } from "..";
+import { CreateRoleDto, RoleEntity, UpdateRoleDto } from "..";
 
 export abstract class RoleDataSource{
 

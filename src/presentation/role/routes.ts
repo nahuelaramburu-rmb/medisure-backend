@@ -1,6 +1,5 @@
 import { Router } from "express";
 import { RoleDataSourceImp } from "../../infraestructure/datasources/role.datasource.impl";
-import { RoleDataSource, RoleRepository } from "../../domain";
 import { RoleRepositoryImpl } from "../../infraestructure/repositories/role.repository.impl";
 import { RoleController } from "./controller";
 

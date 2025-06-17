@@ -30,7 +30,6 @@ export class AuthPrismaDatasource implements AuthDatasource {
             // 4. Hash the password
             const hashedPassword = this.hashPassword(password);
             // 5. Create the user
-            console.log(email)
             const user = await prisma.users.create({
                 data: {
                     email,

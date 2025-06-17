@@ -1,5 +1,4 @@
-import { UpdateRoleDto } from "../../dtos";
-import { CreateRoleDto } from "../../dtos/roles/create-role.dto";
+
 import { RoleEntity } from "../../entities/role.entity";
 import { RoleRepository } from "../../repositories/role.repository";
 

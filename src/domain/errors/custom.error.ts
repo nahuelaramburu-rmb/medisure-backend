@@ -11,6 +11,9 @@ export class CustomError extends Error {
     static badRequest(message: string){
         return new CustomError(400, message);
     }
+    static conflict(message: string){
+        return new CustomError(409, message);
+    }
     static unauthorized(message: string){
         return new CustomError(401, message);
     }
