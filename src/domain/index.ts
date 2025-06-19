@@ -16,9 +16,11 @@ export * from './repositories/auth.repository';
 export * from './repositories/role.repository';
 export * from './repositories/clinical-trial.repository';
 export * from './repositories/patient.repository';
+export * from './repositories/appointment.repository';
 
 export * from './datasources/auth.datasource';
 export * from './datasources/role.datasource';
 export * from './datasources/clinical-trial.datasource';
 export * from './datasources/patient.datasource';
+export * from './datasources/appointment.datasource';
 
