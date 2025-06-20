@@ -31,3 +31,13 @@ export enum AppointmentStatusType {
     Cancelled = 'cancelled',
     NoShow = 'no_show'
 }
+
+export enum RecordType{
+    Diagnosis = 'diagnosis',
+    Medocation = 'medication',
+    Procedure = 'procedure',
+    LabResult = 'lab_result',
+    VitalSigns = 'vital_signs',
+    Allergy = 'allergy',
+    Immunization = 'immunization',
+}

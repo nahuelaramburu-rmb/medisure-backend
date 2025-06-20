@@ -1,19 +1,19 @@
 /**
  * @swagger
  * tags:
- *   name: Patients
- *   description: Patient management endpoints
+ *   name: MedicalRecords
+ *   description: Medical records management endpoints
  */
 
 /**
  * @swagger
- * /v1/api/patients:
+ * /v1/api/medical-records:
  *   get:
- *     summary: Get all patients
- *     tags: [Patients]
+ *     summary: Get all medical records
+ *     tags: [MedicalRecords]
  *     responses:
  *       200:
- *         description: List all patients
+ *         description: List all medical records
  *         content:
  *           application/json:
  *             schema:
@@ -24,20 +24,20 @@
  *                 data:
  *                   type: array
  *                   items:
- *                     $ref: '#/components/schemas/Patient'
- * /v1/api/patients/create:
+ *                     $ref: '#/components/schemas/MedicalRecord'
+ * /v1/api/medical-records/create:
  *   post:
- *     summary: Create a new patient
- *     tags: [Patients]
+ *     summary: Create a new medical record
+ *     tags: [MedicalRecords]
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/PatientInput'
+ *             $ref: '#/components/schemas/MedicalRecordInput'
  *     responses:
  *       201:
- *         description: Patient created
+ *         description: Medical record created
  *         content:
  *           application/json:
  *             schema:
@@ -46,17 +46,17 @@
  *                 msg:
  *                   type: string
  *                 data:
- *                   $ref: '#/components/schemas/Patient'
+ *                   $ref: '#/components/schemas/MedicalRecord'
  *       409:
- *         description: Medical record number already exists
+ *         description: Conflict (duplicate or invalid data)
  */
 
 /**
  * @swagger
- * /v1/api/patients/{id}:
+ * /api/medical-records/{id}:
  *   get:
- *     summary: Get a patient by ID
- *     tags: [Patients]
+ *     summary: Get a medical record by ID
+ *     tags: [MedicalRecords]
  *     parameters:
  *       - in: path
  *         name: id
@@ -65,7 +65,7 @@
  *           type: string
  *     responses:
  *       200:
- *         description: Patient found
+ *         description: Medical record found
  *         content:
  *           application/json:
  *             schema:
@@ -74,12 +74,12 @@
  *                 msg:
  *                   type: string
  *                 data:
- *                   $ref: '#/components/schemas/Patient'
+ *                   $ref: '#/components/schemas/MedicalRecord'
  *       404:
- *         description: Patient not found
+ *         description: Medical record not found
  *   put:
- *     summary: Update a patient by ID
- *     tags: [Patients]
+ *     summary: Update a medical record by ID
+ *     tags: [MedicalRecords]
  *     parameters:
  *       - in: path
  *         name: id
@@ -91,10 +91,10 @@
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/PatientInput'
+ *             $ref: '#/components/schemas/MedicalRecordInput'
  *     responses:
  *       200:
- *         description: Patient updated
+ *         description: Medical record updated
  *         content:
  *           application/json:
  *             schema:
@@ -103,12 +103,12 @@
  *                 msg:
  *                   type: string
  *                 data:
- *                   $ref: '#/components/schemas/Patient'
+ *                   $ref: '#/components/schemas/MedicalRecord'
  *       404:
- *         description: Patient not found
+ *         description: Medical record not found
  *   delete:
- *     summary: Delete a patient by ID
- *     tags: [Patients]
+ *     summary: Delete a medical record by ID
+ *     tags: [MedicalRecords]
  *     parameters:
  *       - in: path
  *         name: id
@@ -117,7 +117,7 @@
  *           type: string
  *     responses:
  *       200:
- *         description: Patient deleted
+ *         description: Medical record deleted
  *         content:
  *           application/json:
  *             schema:
@@ -126,47 +126,44 @@
  *                 msg:
  *                   type: string
  *       404:
- *         description: Patient not found
+ *         description: Medical record not found
  */
 
 /**
  * @swagger
  * components:
  *   schemas:
- *     Patient:
+ *     MedicalRecord:
  *       type: object
  *       properties:
  *         id:
  *           type: string
- *         medical_record_number:
+ *         patient_id:
  *           type: string
- *         first_name:
+ *         document_id:
  *           type: string
- *         last_name:
+ *           nullable: true
+ *         record_type:
  *           type: string
- *         date_of_birth:
+ *           enum: [diagnosis, medication, procedure, lab_result, vital_signs, allergy, immunization]
+ *         record_date:
  *           type: string
  *           format: date
- *         gender:
- *           type: string
- *           enum: [male, female, other, unknown]
- *         phone:
+ *         data:
+ *           type: object
+ *         confidence_score:
+ *           type: number
+ *           format: float
+ *           minimum: 0
+ *           maximum: 1
+ *           nullable: true
+ *         verified_by_user_id:
  *           type: string
  *           nullable: true
- *         email:
+ *         verified_at:
  *           type: string
+ *           format: date-time
  *           nullable: true
- *         blood_type:
- *           type: string
- *           nullable: true
- *         emergency_contact_name:
- *           type: string
- *           nullable: true
- *         emergency_contact_phone:
- *           type: string
- *           nullable: true
- *         primary_doctor_id:
- *           type: string
  *         created_by_user_id:
  *           type: string
  *         created_at:
@@ -175,41 +172,37 @@
  *         updated_at:
  *           type: string
  *           format: date-time
- *     PatientInput:
+ *     MedicalRecordInput:
  *       type: object
  *       properties:
- *         medical_record_number:
+ *         patient_id:
  *           type: string
- *         first_name:
+ *         document_id:
  *           type: string
- *         last_name:
+ *         record_type:
  *           type: string
- *         date_of_birth:
+ *           enum: [diagnosis, medication, procedure, lab_result, vital_signs, allergy, immunization]
+ *         record_date:
  *           type: string
  *           format: date
- *         gender:
+ *         data:
+ *           type: object
+ *         confidence_score:
+ *           type: number
+ *           format: float
+ *           minimum: 0
+ *           maximum: 1
+ *         verified_by_user_id:
  *           type: string
- *           enum: [male, female, other, unknown]
- *         phone:
+ *         verified_at:
  *           type: string
- *         email:
- *           type: string
- *         blood_type:
- *           type: string
- *         emergency_contact_name:
- *           type: string
- *         emergency_contact_phone:
- *           type: string
- *         primary_doctor_id:
- *           type: string
+ *           format: date-time
  *         created_by_user_id:
  *           type: string
  *       required:
- *         - medical_record_number
- *         - first_name
- *         - last_name
- *         - date_of_birth
- *         - gender
+ *         - patient_id
+ *         - record_type
+ *         - record_date
+ *         - data
  *         - created_by_user_id
- *         - primary_doctor_id
  */

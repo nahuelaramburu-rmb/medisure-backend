@@ -1,12 +1,13 @@
 /**
  * @swagger
- * /api/roles:
+ * /v1/api/roles:
  *   get:
  *     summary: Get all roles
  *     tags: [Roles]
  *     responses:
  *       200:
  *         description: List all roles
+ * /v1/api/roles/create:
  *   post:
  *     summary: Create a new role
  *     tags: [Roles]
@@ -23,7 +24,7 @@
 
 /**
  * @swagger
- * /api/roles/{id}:
+ * /v1/api/roles/{id}:
  *   get:
  *     summary: Get a role by ID
  *     tags: [Roles]

@@ -7,7 +7,7 @@
 
 /**
  * @swagger
- * /api/appointments:
+ * /v1/api/appointments:
  *   get:
  *     summary: Get all appointments
  *     tags: [Appointments]
@@ -25,6 +25,7 @@
  *                   type: array
  *                   items:
  *                     $ref: '#/components/schemas/Appointment'
+ * /v1/api/appointments/create:
  *   post:
  *     summary: Create a new appointment
  *     tags: [Appointments]
@@ -52,7 +53,7 @@
 
 /**
  * @swagger
- * /api/appointments/{id}:
+ * /v1/api/appointments/{id}:
  *   get:
  *     summary: Get an appointment by ID
  *     tags: [Appointments]
@@ -182,5 +183,5 @@
  *         - doctor_id
  *         - appointment_date
  *         - type
- *        - status
+ *         - status
  */

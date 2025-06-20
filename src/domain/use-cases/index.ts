@@ -20,3 +20,9 @@ export * from './patients/get-patient';
 export * from './patients/create-patient';
 export * from './patients/update-patient';  
 export * from './patients/delete-patient';
+
+export * from './medical-records/get-medical.record';
+export * from './medical-records/get-medical.records';
+export * from './medical-records/create-medical.record';
+export * from './medical-records/update-medical.record';
+export * from './medical-records/delete-medical.record';
