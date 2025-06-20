@@ -2,10 +2,10 @@ import { Router } from "express";
 import { AuthRoutes } from "./auth/routes";
 import { RoleRoutes } from "./role/routes";
 import { ClinicalTrialRoutes } from "./clinical_trial/routes";
-import { PatientController } from "./patient/controller";
 import { PatientRoutes } from "./patient/routes";
 import { AppointmentRoutes } from "./appointment/routes";
 import { MedicalRecordRoutes } from "./medical-record/routes";
+import { DocumentRoutes } from "./document/routes";
 
 export class AppRoutes{
     static get routes(): Router{
@@ -17,6 +17,7 @@ export class AppRoutes{
         router.use('/v1/api/patients', PatientRoutes.routes);
         router.use('/v1/api/appointments', AppointmentRoutes.routes);
         router.use('/v1/api/medical-records', MedicalRecordRoutes.routes);
+        router.use('/v1/api/documents', DocumentRoutes.routes);
         return router;
     }
 }

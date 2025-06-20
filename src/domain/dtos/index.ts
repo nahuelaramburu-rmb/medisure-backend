@@ -15,5 +15,8 @@ export * from './clinicalTrial/update-clinical.trial-dto';
 export * from './patients/create-patient.dto';
 export * from './patients/update-patient.dto';
 
-export * from './medicalRecords/create-medical.record';
-export * from './medicalRecords/update-medical.record';
+export * from './medicalRecords/create-medical.record.dto';
+export * from './medicalRecords/update-medical.record.dto';
+
+export * from './documents/create-document.dto';
+export * from './documents/update-document.dto';

@@ -41,3 +41,30 @@ export enum RecordType{
     Allergy = 'allergy',
     Immunization = 'immunization',
 }
+
+export enum DocumentType {
+    MedicalRecord = 'medical_record',
+    LabReport = 'lab_report',
+    Imaging = 'imaging',
+    ClinicalNote = 'clinical_note',
+    DischargeSummary = 'discharge_summary',
+    Prescription = 'prescription',
+    Other = 'other',
+}
+
+export enum DocumentFileType{
+    PDF = 'pdf',
+    Docx = 'docx',
+    Txt = 'txt',
+    Jpg = 'jpg',
+    Jpeg = 'jpeg',
+    Png = 'png',
+    Dicom = 'dicom',
+}
+
+export enum DocumentStatusValidType{
+    Pending = 'pending',
+    Processing = 'processing',
+    Completed = 'completed',
+    Failed = 'failed',
+}

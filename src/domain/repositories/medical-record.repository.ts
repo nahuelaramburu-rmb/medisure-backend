@@ -7,5 +7,4 @@ export abstract class MedicalRecordRepository{
     abstract getById(id: string): Promise<MedicalRecordEntity>;
     abstract updateById(updateMedicalRecordDto: UpdateMedicalRecordDto): Promise<MedicalRecordEntity>;
     abstract deleteById(id: string): Promise<MedicalRecordEntity>;
-    
 }
