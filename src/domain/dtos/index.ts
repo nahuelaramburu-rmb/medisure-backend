@@ -20,3 +20,6 @@ export * from './medicalRecords/update-medical.record.dto';
 
 export * from './documents/create-document.dto';
 export * from './documents/update-document.dto';
+
+export * from './cohorts/create-cohort.dto';
+export * from './cohorts/update-cohort.dto';

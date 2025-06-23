@@ -26,3 +26,9 @@ export * from './medical-records/get-medical.records';
 export * from './medical-records/create-medical.record';
 export * from './medical-records/update-medical.record';
 export * from './medical-records/delete-medical.record';
+
+export * from './cohorts/get-cohorts';
+export * from './cohorts/get-cohort';
+export * from './cohorts/create-cohort';
+export * from './cohorts/update-cohort';
+export * from './cohorts/delete-cohort';
