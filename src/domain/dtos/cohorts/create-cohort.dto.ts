@@ -25,7 +25,7 @@ export class CreateCohortDto {
         if (!department) return ['Missing department'];
         if (!created_by_user_id) return ['Missing created_by_user_id'];
         if (!is_active ) return ['Missing is_active'];
-        if (!patient_count) return ['Missing patient_count'];
+        if (patient_count === undefined || patient_count === null) return ['Missing patient count'];
         if (typeof name !== 'string' || name.trim() === '') return ['name must be a non-empty string'];
         if (typeof description !== 'string' || description.trim() === '') return ['description must be a non-empty string'];
         if (typeof department !== 'string' || department.trim() === '') return ['department must be a non-empty string'];

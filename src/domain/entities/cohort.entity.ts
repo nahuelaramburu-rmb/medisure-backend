@@ -2,6 +2,7 @@
 
 export class CohortEntity {
     constructor(
+        public id: string,
         public name: string,
         public description: string,
         public department: string,
@@ -11,6 +12,7 @@ export class CohortEntity {
     ){}
     static fromObject(object: { [key: string]: any }): CohortEntity {
         const {
+            id,
             name,
             description,
             department,
@@ -29,6 +31,7 @@ export class CohortEntity {
         }
 
         return new CohortEntity(
+            id,
             name,
             description,
             department,
