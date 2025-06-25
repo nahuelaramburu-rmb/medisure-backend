@@ -1,6 +1,7 @@
 export * from './auth/change-password.dto';
 export * from './auth/login-user.dto';
 export * from './auth/register-user.dto';
+export * from './auth/create-audit.logs.dto'
 
 
 export * from './roles/create-role.dto';

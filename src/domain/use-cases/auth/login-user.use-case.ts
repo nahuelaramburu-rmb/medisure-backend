@@ -2,6 +2,7 @@ import { JwtAdapter } from "../../../config";
 import { LoginUserDto } from "../../dtos/auth/login-user.dto";
 import { AuthRepository } from '../../repositories/auth.repository';
 import { UserEntity } from '../../entities/user.entity';
+import { ActionType } from "../../enums";
 
 interface UserToken{
     token: string;
@@ -34,6 +35,17 @@ export class LoginUser implements LoginUseUseCase {
             throw new Error("Failed to generate token");
         }
 
+        //TODO: get ip address from request
+        await this.authRepository.createAuditLog({
+            
+            user_id: user.id,
+            action: ActionType.Read,
+            entity_type: 'users',
+            entity_id: user.id,
+            changes: { action: 'login' },
+            ip_address: '',
+        })
+        
         return {
             token: token,
             user: {

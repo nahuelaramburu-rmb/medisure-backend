@@ -1,7 +1,9 @@
-import { AuthDatasource, ChangePasswordDto, CustomError, LoginUserDto, RegisterUserDto, UserEntity } from '../../domain';
+import { AuthDatasource, ChangePasswordDto, CreateAuditLogsDto, CustomError, LoginUserDto, RegisterUserDto, UserEntity } from '../../domain';
 import { UserMapper } from '../mappers/user.mappers';
 import { BcryptAdapter } from '../../config';
 import { prisma } from '../../data/postgres';
+import { AuditLogsEntity } from '../../domain/entities/audit-logs.entity';
+import { create } from 'domain';
 
 type HashFunction = (password: string) => string;
 type CompareFunction = (password: string, hashed: string) => boolean;
@@ -12,8 +14,9 @@ export class AuthPrismaDatasource implements AuthDatasource {
         private readonly comparePassword: CompareFunction = BcryptAdapter.compare
     ) { }
 
+
     async register(registerUserDto: RegisterUserDto): Promise<UserEntity> {
-        let { email, password, role_id, department, first_name, last_name, professional_id  } = registerUserDto;
+        let { email, password, role_id, department, first_name, last_name, professional_id } = registerUserDto;
         try {
             // 1. Verify if the user already exists
             const exist = await prisma.users.findUnique({ where: { email } });
@@ -91,5 +94,19 @@ export class AuthPrismaDatasource implements AuthDatasource {
             if (error instanceof CustomError) throw error;
             throw CustomError.internalServerError();
         }
+    }
+
+    async createAuditLog(createAuditLogsDto: CreateAuditLogsDto): Promise<AuditLogsEntity> {
+        try {
+            const createdAuditLog = await prisma.audit_logs.create({
+                data: createAuditLogsDto!
+            })
+
+            return AuditLogsEntity.fromObject(createdAuditLog);
+        } catch (error) {
+            if (error instanceof CustomError) throw error;
+            throw CustomError.internalServerError();
+        }
+
     }
 }

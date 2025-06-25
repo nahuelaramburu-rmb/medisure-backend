@@ -108,6 +108,7 @@ model users {
   password_changed_at                                        DateTime?         @map(" password_changed_at") @db.Date
   appointments_appointments_created_by_user_idTousers        appointments[]    @relation("appointments_created_by_user_idTousers")
   appointments_appointments_doctor_idTousers                 appointments[]    @relation("appointments_doctor_idTousers")
+  audit_logs                                                 audit_logs[]
   clinical_trials                                            clinical_trials[]
   cohort_patients                                            cohort_patients[]
   cohorts                                                    cohorts[]
@@ -178,4 +179,25 @@ model medical_records {
   @@index([data], map: "idx_medical_records_data_gin", type: Gin)
   @@index([patient_id, record_date(sort: Desc)], map: "idx_medical_records_patient_date")
   @@index([record_type], map: "idx_medical_records_type")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+enum AuditAction {
+  create
+  read
+  update
+  delete
+  export
+  verify
+}
+model audit_logs {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id     String   @db.Uuid
+  action      AuditAction
+  entity_type String   @db.VarChar(50)
+  entity_id   String   @db.Uuid
+  changes     Json?
+  ip_address  String?  @db.Inet
+  created_at  DateTime @default(now()) @db.Timestamptz(6)
+  users       users    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }

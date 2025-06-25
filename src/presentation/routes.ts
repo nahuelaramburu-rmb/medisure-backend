@@ -7,6 +7,8 @@ import { AppointmentRoutes } from "./appointment/routes";
 import { MedicalRecordRoutes } from "./medical-record/routes";
 import { DocumentRoutes } from "./document/routes";
 import { CohortRouter } from "./cohorts/routes";
+import { CohortPatientController } from "./cohort-patient/controller";
+import { CohortPatientRouter } from "./cohort-patient/routes";
 
 export class AppRoutes{
     static get routes(): Router{
@@ -20,6 +22,7 @@ export class AppRoutes{
         router.use('/v1/api/medical-records', MedicalRecordRoutes.routes);
         router.use('/v1/api/documents', DocumentRoutes.routes);
         router.use('/v1/api/cohorts', CohortRouter.routes); 
+        router.use('/v1/api/cohorts', CohortPatientRouter.routes); // Cohort patients routes
         return router;
     }
 }

@@ -68,3 +68,12 @@ export enum DocumentStatusValidType{
     Completed = 'completed',
     Failed = 'failed',
 }
+
+export enum ActionType{
+    Create = 'create',
+    Update = 'update',
+    Delete = 'delete',
+    Read = 'read',
+    Export = 'export',
+    Verify = 'verify',
+}

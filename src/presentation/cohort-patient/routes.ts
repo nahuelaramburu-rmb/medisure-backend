@@ -11,10 +11,10 @@ export class CohortPatientRouter{
         const datasource = new CohortPatientDataSourceImpl();
         const repository = new CohortPatientRepositoryImpl(datasource);
         const cohortPatientController = new CohortPatientController(repository);
-        router.post('/cohorts/:cohortId/patients',(req, res) => {
+        router.post('/:cohortId/patients',(req, res) => {
             cohortPatientController.addPatient(req, res);
         });
-        router.delete('/cohorts/:cohortId/patients/:patientId', (req, res) => {
+        router.delete('/:cohortId/patients/:patientId', (req, res) => {
             cohortPatientController.removePatient(req, res);
         });
 
