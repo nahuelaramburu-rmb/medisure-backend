@@ -1,4 +1,4 @@
-import { LoginUser } from './../use-cases/auth/login-user.use-case';
+import { LoginUser } from '../use-cases/auth/login-user.use-case';
 
 describe('LoginUser - password expired', () => {
   const mockSignedToken = jest.fn().mockResolvedValue('mocked.jwt.token');

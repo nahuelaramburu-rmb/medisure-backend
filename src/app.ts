@@ -7,15 +7,15 @@ import { prisma } from './data/postgres';
 
 
 
-(()=>{
+(async () => {
     main();
 })()
 
-async function main(){
+function main() {
     try {
-        await prisma.$connect();
+        prisma.$connect();
         console.log('Connected to Postgres database');
-    }catch(error){
+    } catch (error) {
         console.error('Error connecting to Postgres database:', error);
         process.exit(1); // Exit the process if connection fails
     }
@@ -29,10 +29,10 @@ async function main(){
         path: '/api-docs',
         handler: swaggerUi.setup(swaggerSpec),
     };
-    
-    new Server({
+
+    const server = new Server({
         port: envs.PORT,
-        routes: AppRoutes.routes, 
+        routes: AppRoutes.routes,
     })
-        .start()
+    server.start()
 }  
