@@ -1,4 +1,4 @@
-import { CreateMedicalRecord, CreateMedicalRecordDto, GetMedicalRecordById, GetMedicalRecords, MedicalRecordRepository } from "../../domain";
+import { CreateMedicalRecord, CreateMedicalRecordDto, GetMedicalRecordById, GetMedicalRecords, MedicalRecordRepository, UpdateMedicalRecord, UpdateMedicalRecordDto } from "../../domain";
 import { Request, Response } from "express";
 import { handleError } from "../helpers/errors";
 
@@ -47,10 +47,10 @@ export class MedicalRecordController{
     }
 
     updateMedicalRecord = (req: Request, res: Response) => {
-        const { id } = req.params;
-        const [ error, updateMedicalRecordDto ] = CreateMedicalRecordDto.create({ ...req.body, id });
+        const  id  = req.params.id;
+        const [ error, updateMedicalRecordDto ] = UpdateMedicalRecordDto.create({ ...req.body, id });
         if (error) return res.status(400).json({ error });
-        new CreateMedicalRecord(this.medicalRecordRepository)
+        new UpdateMedicalRecord(this.medicalRecordRepository)
             .execute(updateMedicalRecordDto!)
             .then((medicalRecord) => {
                 res.json({
@@ -62,7 +62,7 @@ export class MedicalRecordController{
     }
 
     deleteMedicalRecord = (req: Request, res: Response) => {
-        const { id } = req.params;
+        const  id  = req.params.id;
         this.medicalRecordRepository.deleteById(id)
             .then((medicalRecord) => {
                 res.json({

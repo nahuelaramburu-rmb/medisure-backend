@@ -65,7 +65,7 @@ export class AuthPrismaDatasource implements AuthDatasource {
             // 3. Map the DTO to an entity
             return UserMapper.UserEntityFromObject(user);
         } catch (error) {
-            console.error(error);
+            console.error('Prisma error original:', error); // <-- Esto es clave
             if (error instanceof CustomError) throw error;
             throw CustomError.internalServerError();
         }
@@ -86,7 +86,7 @@ export class AuthPrismaDatasource implements AuthDatasource {
                 where: { email },
                 data: {
                     password_hash: hashedNewPassword,
-                    password_changed_at: new Date(), // Assuming you want to track when the password was changed
+                    password_changed_at: new Date(), 
                 }
             });
             return UserMapper.UserEntityFromObject(updatedUser);

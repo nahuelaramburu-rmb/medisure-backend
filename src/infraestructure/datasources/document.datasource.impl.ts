@@ -9,7 +9,7 @@ export class DocumentDataSourceImpl implements DocumentDataSource{
     }
 
     async getDocumentById(id: string): Promise<DocumentEntity> {
-        const document = prisma.documents.findUnique({
+        const document = await prisma.documents.findUnique({
             where: { id }
         });
         if (!document) throw new CustomError(404, `Document not found with id: ${id}`);
@@ -28,16 +28,16 @@ export class DocumentDataSourceImpl implements DocumentDataSource{
 
     async updateDocument(updateDocumentDto: UpdateDocumentDto): Promise<DocumentEntity> {
         await this.getDocumentById(updateDocumentDto.id);
-        const updatedDocument = prisma.documents.update({
+        const updatedDocument = await prisma.documents.update({
             where: { id: updateDocumentDto.id },
-            data: updateDocumentDto!.values
+            data: updateDocumentDto.toPrismaUpdateInput()
         });
         return DocumentEntity.fromObject(updatedDocument);
     }
 
     async deleteDocument(id: string): Promise<DocumentEntity> {
         await this.getDocumentById(id);
-        const deletedDocument = prisma.documents.delete({
+        const deletedDocument = await prisma.documents.delete({
             where: { id }
         });
         return DocumentEntity.fromObject(deletedDocument);

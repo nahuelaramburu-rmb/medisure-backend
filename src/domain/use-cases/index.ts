@@ -32,3 +32,15 @@ export * from './cohorts/get-cohort';
 export * from './cohorts/create-cohort';
 export * from './cohorts/update-cohort';
 export * from './cohorts/delete-cohort';
+
+export * from './appointments/get-appointments';
+export * from './appointments/get-appointment';
+export * from './appointments/create-appointment';
+export * from './appointments/update-appointment';
+export * from './appointments/delete-appointment';
+
+export * from './documents/create-document';
+export * from './documents/get-documents';
+export * from './documents/get-document';
+export * from './documents/update-document';
+export * from './documents/delete-document';

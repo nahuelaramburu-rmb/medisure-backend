@@ -3,7 +3,7 @@ import { RecordType } from "../../enums";
 
 
 export class CreateMedicalRecordDto {
-    private constructor(
+     constructor(
         public patient_id: string,
         public record_type: RecordType,
         public record_date: Date,

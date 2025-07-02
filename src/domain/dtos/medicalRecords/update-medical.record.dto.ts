@@ -3,9 +3,9 @@ import { RecordType } from "../../enums";
 
 
 export class UpdateMedicalRecordDto {
-    private constructor(
+     constructor(
         public id:string,
-        public patient_id: string,
+        public patient_id?: string,
         public record_type?: RecordType,
         public record_date?: Date,
         public data?: object,

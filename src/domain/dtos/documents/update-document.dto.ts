@@ -9,7 +9,7 @@ export class UpdateDocumentDto{
         // but this is not the case for now, so we keep it mandatory
         public id: string,
         public patient_id: string,
-        public document_id: string,
+        
         public document_type?: DocumentType,
         public uploaded_by_user_id?: string,
         public filename?: string,
@@ -24,9 +24,9 @@ export class UpdateDocumentDto{
         const returnObj: { [key: string]: any } = {};
         if (this.id) returnObj.id = this.id;
         if (this.patient_id) returnObj.patient_id = this.patient_id;
-        if (this.document_id) returnObj.document_id = this.document_id;
+        
         if (this.document_type) returnObj.document_type = this.document_type;
-        if (this.uploaded_by_user_id) returnObj.uploaded_by_user = this.uploaded_by_user_id;
+        if (this.uploaded_by_user_id) returnObj.uploaded_by_user_id = this.uploaded_by_user_id;
         if (this.filename) returnObj.filename = this.filename;
         if (this.file_type) returnObj.file_type = this.file_type;
         if (this.file_size !== undefined && this.file_size !== null) returnObj.file_size = this.file_size;
@@ -40,7 +40,6 @@ export class UpdateDocumentDto{
         const {
             id,
             patient_id,
-            document_id,
             document_type,
             uploaded_by_user_id,
             filename,
@@ -53,13 +52,11 @@ export class UpdateDocumentDto{
 
         if (!id) return ['Missing id'];
         if (!patient_id) return ['Missing patient_id'];
-        if (!document_id) return ['Missing document_id'];
 
         if (!Validators.uuid.test(id)) return ['id must be a valid UUID'];
         if (!Validators.uuid.test(patient_id)) return ['patient_id must be a valid UUID'];
-        if (!Validators.uuid.test(document_id)) return ['document_id must be a valid UUID'];
         if (document_type && !Object.values(DocumentType).includes(document_type)) return ['Invalid document_type value'];
-        if (uploaded_by_user_id && !Validators.uuid.test(uploaded_by_user_id)) return ['uploaded_by_user must be a valid UUID'];
+        if (uploaded_by_user_id && !Validators.uuid.test(uploaded_by_user_id)) return ['_id must be a valid UUID'];
         if (filename && (typeof filename !== 'string' || filename.trim() === '')) return ['filename must be a non-empty string'];
         if (file_type && !Object.values(DocumentFileType).includes(file_type)) return ['Invalid file_type value'];
         if (file_size !== undefined && file_size !== null && (file_size < 0 || (typeof file_size !== 'number' && typeof file_size !== 'bigint'))) {
@@ -82,7 +79,6 @@ export class UpdateDocumentDto{
             new UpdateDocumentDto(
                 id,
                 patient_id,
-                document_id,
                 document_type,
                 uploaded_by_user_id,
                 filename,
@@ -93,5 +89,20 @@ export class UpdateDocumentDto{
                 newProcessedAt
             )
         ];
+    }
+
+    toPrismaUpdateInput(){
+        const data: { [key: string]: any } = {};
+
+        if (this.document_type) data.document_type = this.document_type;
+        if (this.uploaded_by_user_id) data.users = { connect: { id: this.uploaded_by_user_id}}
+        if (this.filename) data.filename = this.filename;
+        if (this.file_type) data.file_type = this.file_type;
+        if (this.file_size !== undefined && this.file_size !== null) data.file_size = this.file_size;
+        if (this.storage_path) data.storage_path = this.storage_path;
+        if (this.processing_status) data.processing_status = this.processing_status;
+        if (this.processed_at) data.processed_at = this.processed_at;
+        if (this.patient_id != undefined) data.patients = { connect: { id: this.patient_id}}
+        return data;
     }
 }

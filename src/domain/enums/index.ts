@@ -43,7 +43,7 @@ export enum RecordType{
 }
 
 export enum DocumentType {
-    MedicalRecord = 'medical_record',
+    MedicalRecord = 'medical_report',
     LabReport = 'lab_report',
     Imaging = 'imaging',
     ClinicalNote = 'clinical_note',

@@ -3,6 +3,7 @@ import { RecordType } from "../enums";
 
 export class MedicalRecordEntity{
     constructor(
+        public id:string,
         public patient_id: string,
         public record_type: RecordType,
         public record_date: Date,
@@ -16,6 +17,7 @@ export class MedicalRecordEntity{
 
     static fromObject( object:{ [key:string]: any}): MedicalRecordEntity{
         const {
+            id,
             patient_id,
             document_id,
             record_type,
@@ -42,11 +44,15 @@ export class MedicalRecordEntity{
             if (isNaN(newRecordDate.getTime())) throw new Error('record_date must be a valid date');
             if (newRecordDate.getTime() >= currentDate.getTime()) throw new Error('record_date must be earlier than the current date');
         }
-        if (confidence_score && (typeof confidence_score !== 'number' || confidence_score < 0 || confidence_score > 2)) {
+        if (
+            confidence_score !== undefined &&
+            ( confidence_score < 0 || confidence_score > 1)
+        ) {
             throw new Error('confidence_score must be a number between 0 and 1');
         }
 
         return new MedicalRecordEntity(
+            id,
             patient_id,
             document_id,
             record_type,

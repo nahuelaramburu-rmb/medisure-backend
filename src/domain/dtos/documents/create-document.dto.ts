@@ -9,7 +9,7 @@ export class CreateDocumentDto {
         public uploaded_by_user_id: string,
         public filename: string,
         public file_type: DocumentFileType,
-        public file_size: number | bigint,
+        public file_size: number|bigint,
         public storage_path: string,
         public processing_status: DocumentStatusValidType,
         public processed_at?: Date,

@@ -23,6 +23,7 @@ export class AppointmentDatasourceImpl implements AppointmentDatasource{
         return AppointmentEntity.fromObject(appointment);
     }
     async updateAppointment(updateAppointmentDto: UpdateAppointmentDto): Promise<AppointmentEntity> {
+        console.log("id",updateAppointmentDto.id)
         await this.getAppointmentById(updateAppointmentDto.id);
         const updatedAppointment = await prisma.appointments.update({
             where: { id: updateAppointmentDto.id },
@@ -32,7 +33,7 @@ export class AppointmentDatasourceImpl implements AppointmentDatasource{
     }
     async deleteAppointment(id: string): Promise<AppointmentEntity> {
         await this.getAppointmentById(id);
-        const deletedAppointment = prisma.appointments.delete({
+        const deletedAppointment = await prisma.appointments.delete({
             where: { id }
         });
         return AppointmentEntity.fromObject(deletedAppointment);

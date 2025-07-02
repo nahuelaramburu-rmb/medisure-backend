@@ -18,6 +18,7 @@ export class UpdateAppointmentDto {
 
     get values(){
         const returnObj: { [key: string]: any } = {};
+        if (this.id) returnObj.id = this.id;
         if (this.patient_id) returnObj.patient_id = this.patient_id;
         if (this.doctor_id) returnObj.doctor_id = this.doctor_id;
         if (this.appointment_type) returnObj.appointment_type = this.appointment_type;
