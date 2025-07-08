@@ -46,11 +46,10 @@ export class MedicalRecordDataSourceImpl implements MedicalRecordDataSource {
                     { created_at: { gte: timeThreshold } },
                     { updated_at: { gte: timeThreshold } }
                 ],
-                // Prisma does not support 'in' for JSON fields; fetch and filter in TypeScript
-                // This will fetch records with any severity, filter below
+                
             }
         });
-        // Filter records in TypeScript for severity
+    
         const filteredRecords = records.filter(record => {
             if (record.data && typeof record.data === 'object' && !Array.isArray(record.data)) {
                 const severity = (record.data as { severity?: string }).severity;

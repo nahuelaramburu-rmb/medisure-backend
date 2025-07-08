@@ -21,6 +21,7 @@ export * from './patients/get-patient';
 export * from './patients/create-patient';
 export * from './patients/update-patient';  
 export * from './patients/delete-patient';
+export * from './patients/export-patients';
 
 export * from './medical-records/get-medical.record';
 export * from './medical-records/get-medical.records';

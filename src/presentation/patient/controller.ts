@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { CreatePatient, CreatePatientDto, DeletePatient, GetPatientById, GetPatients, PatientRepository, UpdatePatient, UpdatePatientDto } from "../../domain";
+import { CreatePatient, CreatePatientDto, DeletePatient, ExportPatients, ExportPatientsDto, GetPatientById, GetPatients, PatientRepository, UpdatePatient, UpdatePatientDto } from "../../domain";
 import { handleError } from "../helpers/errors";
 
 
@@ -76,5 +76,18 @@ export class PatientController{
             })
             .catch( error=> handleError(error, res) );
     };
+
+    exportPatients = async(req: Request, res: Response) => {
+        const [error, dto] = ExportPatientsDto.create(req.query);
+        if (error) return res.status(400).json({ error });
+        new ExportPatients(this.patientRepository)
+            .execute(dto!)
+            .then((exportedData) => {
+                res.setHeader('Content-Type', exportedData.contentType);
+                res.setHeader('Content-Disposition', `attachment; filename="${exportedData.filename}"`);
+                res.send(exportedData.data);
+            })
+            .catch((error) => handleError(error, res));
+    }
     
 }

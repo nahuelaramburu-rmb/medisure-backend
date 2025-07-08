@@ -22,6 +22,9 @@ export class PatientRoutes {
         });
         router.delete('/:id', patientController.deletePatient);
         
+        router.get('/export/patients', (req, res)=>{
+            patientController.exportPatients(req, res);
+        });
         return router;
     }
 }

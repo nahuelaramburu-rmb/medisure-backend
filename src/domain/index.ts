@@ -28,6 +28,7 @@ export * from './repositories/medical-record.repository';
 export * from './repositories/document.repository'
 export * from './repositories/cohort.repository';
 export * from './repositories/audit-log.repository';
+export * from './repositories/log.repository';
 
 
 export * from './datasources/auth.datasource';

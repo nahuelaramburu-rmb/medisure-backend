@@ -1,4 +1,5 @@
 import { BloodType, Gender } from "../enums";
+import { create } from 'domain';
 
 export class PatientEntity {
     constructor(
@@ -15,6 +16,8 @@ export class PatientEntity {
         public blood_type?: BloodType,
         public emergency_contact_name?: string,
         public emergency_contact_phone?: string,
+        public created_at?: Date,
+        public updated_at?: Date,
     ){}
     public static fromObject( object: { [key: string]: any }): PatientEntity {
         const {
@@ -31,6 +34,8 @@ export class PatientEntity {
             blood_type, 
             emergency_contact_name,
             emergency_contact_phone,
+            created_at,
+            updated_at,
         } = object;
         
         if (!medical_record_number) throw new Error('Missing medical_record_number');
@@ -66,6 +71,8 @@ export class PatientEntity {
             blood_type,
             emergency_contact_name,
             emergency_contact_phone,
+            created_at,
+            updated_at
         );
     }
 }

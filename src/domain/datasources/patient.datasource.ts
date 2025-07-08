@@ -11,4 +11,6 @@ export abstract class PatientDataSource {
 
     abstract getPatientByMedicalRecordNumber(medical_record_number: string): Promise<PatientEntity>;
     abstract existMedicalRecordNumber(medical_record_number: string): Promise<boolean>;
+
+    abstract getPatientsByDateRange(startDate?: Date, endDate?: Date): Promise<PatientEntity[]>;
 }
