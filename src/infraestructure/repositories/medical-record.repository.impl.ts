@@ -20,4 +20,7 @@ export class MedicalRecordRepositoryImpl implements MedicalRecordRepository {
     deleteById(id: string): Promise<MedicalRecordEntity> {
         return this.medicalDatasource.deleteMedicalRecord(id);
     }
+    getRecentRecordsWithCriticalSeverity(timeThreshold: Date): PromiseLike<MedicalRecordEntity[]> {
+        return this.medicalDatasource.getRecentRecordsWithCriticalSeverity(timeThreshold);
+    }
 }

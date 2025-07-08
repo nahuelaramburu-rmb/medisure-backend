@@ -7,4 +7,6 @@ export abstract class MedicalRecordDataSource {
     abstract getMedicalRecordById(id: string): Promise<MedicalRecordEntity>;
     abstract updateMedicalRecord(updateMedicalRecordDto: UpdateMedicalRecordDto): Promise<MedicalRecordEntity>;
     abstract deleteMedicalRecord(id: string): Promise<MedicalRecordEntity>;
+
+    abstract getRecentRecordsWithCriticalSeverity(timeThreshold: Date): Promise<MedicalRecordEntity[]>;
 }

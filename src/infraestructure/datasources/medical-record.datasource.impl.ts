@@ -3,7 +3,7 @@ import { CreateMedicalRecordDto, CustomError, MedicalRecordDataSource, MedicalRe
 
 
 
-export class MedicalRecordDataSourceImpl implements MedicalRecordDataSource{
+export class MedicalRecordDataSourceImpl implements MedicalRecordDataSource {
     async createMedicalRecord(createMedicalRecordDto: CreateMedicalRecordDto): Promise<MedicalRecordEntity> {
         const medical_record = await prisma.medical_records.create({
             data: createMedicalRecordDto!
@@ -13,14 +13,14 @@ export class MedicalRecordDataSourceImpl implements MedicalRecordDataSource{
     async getAllMedicalRecords(): Promise<MedicalRecordEntity[]> {
         const medical_records = await prisma.medical_records.findMany();
 
-        return medical_records.map( medical_record => MedicalRecordEntity.fromObject(medical_record));
+        return medical_records.map(medical_record => MedicalRecordEntity.fromObject(medical_record));
     }
     async getMedicalRecordById(id: string): Promise<MedicalRecordEntity> {
 
         const medical_record = await prisma.medical_records.findUnique({
             where: { id }
         });
-        if( !medical_record ) throw new CustomError(404, "Medical record not found");
+        if (!medical_record) throw new CustomError(404, "Medical record not found");
         return MedicalRecordEntity.fromObject(medical_record);
     }
     async updateMedicalRecord(updateMedicalRecordDto: UpdateMedicalRecordDto): Promise<MedicalRecordEntity> {
@@ -37,5 +37,27 @@ export class MedicalRecordDataSourceImpl implements MedicalRecordDataSource{
             where: { id }
         });
         return MedicalRecordEntity.fromObject(deletedMedicalRecord);
+    }
+
+    async getRecentRecordsWithCriticalSeverity(timeThreshold: Date): Promise<MedicalRecordEntity[]> {
+        const records = await prisma.medical_records.findMany({
+            where: {
+                OR: [
+                    { created_at: { gte: timeThreshold } },
+                    { updated_at: { gte: timeThreshold } }
+                ],
+                // Prisma does not support 'in' for JSON fields; fetch and filter in TypeScript
+                // This will fetch records with any severity, filter below
+            }
+        });
+        // Filter records in TypeScript for severity
+        const filteredRecords = records.filter(record => {
+            if (record.data && typeof record.data === 'object' && !Array.isArray(record.data)) {
+                const severity = (record.data as { severity?: string }).severity;
+                return severity === 'moderate' || severity === 'severe';
+            }
+            return false;
+        });
+        return filteredRecords.map(record => MedicalRecordEntity.fromObject(record));
     }
 }

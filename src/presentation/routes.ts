@@ -9,6 +9,7 @@ import { DocumentRoutes } from "./document/routes";
 import { CohortRouter } from "./cohorts/routes";
 import { CohortPatientController } from "./cohort-patient/controller";
 import { CohortPatientRouter } from "./cohort-patient/routes";
+import { AuditLogRouter } from "./audit-log/routes";
 
 export class AppRoutes{
     static get routes(): Router{
@@ -23,6 +24,7 @@ export class AppRoutes{
         router.use('/v1/api/documents', DocumentRoutes.routes);
         router.use('/v1/api/cohorts', CohortRouter.routes); 
         router.use('/v1/api/cohorts', CohortPatientRouter.routes); // Cohort patients routes
+        router.use('/v1/api/audit-logs', AuditLogRouter.routes);
         return router;
     }
 }

@@ -1,4 +1,4 @@
-import { AuthDatasource, ChangePasswordDto, CreateAuditLogsDto, CustomError, LoginUserDto, RegisterUserDto, UserEntity } from '../../domain';
+import { ActionType, AuthDatasource, ChangePasswordDto, CreateAuditLogsDto, CustomError, LoginUserDto, RegisterUserDto, UserEntity } from '../../domain';
 import { UserMapper } from '../mappers/user.mappers';
 import { BcryptAdapter, envs, JwtAdapter } from '../../config';
 import { prisma } from '../../data/postgres';
@@ -12,7 +12,7 @@ export class AuthPrismaDatasource implements AuthDatasource {
     constructor(
         private readonly hashPassword: HashFunction = BcryptAdapter.hash,
         private readonly comparePassword: CompareFunction = BcryptAdapter.compare,
-        private readonly emailService: EmailService = new EmailService( envs.MAILER_SERVICE, envs.MAILER_EMAIL, envs.MAILER_SECRET_KEY )
+        private readonly emailService: EmailService = new EmailService(envs.MAILER_SERVICE, envs.MAILER_EMAIL, envs.MAILER_SECRET_KEY)
     ) { }
 
 
@@ -43,7 +43,7 @@ export class AuthPrismaDatasource implements AuthDatasource {
                     first_name,
                     last_name,
                     professional_id,
-                    password_changed_at: new Date(), 
+                    password_changed_at: new Date(),
                 }
             });
             // 6. Send email validation link
@@ -57,7 +57,7 @@ export class AuthPrismaDatasource implements AuthDatasource {
         }
     }
 
-    async login(loginUserDto: LoginUserDto): Promise<UserEntity> {
+    async login(loginUserDto: LoginUserDto, ip: string): Promise<UserEntity> {
         const { email, password } = loginUserDto;
         try {
             // 1. Verify if the user exists
@@ -66,7 +66,16 @@ export class AuthPrismaDatasource implements AuthDatasource {
             // 2. Compare the password
             const isValid = this.comparePassword(password, user.password_hash);
             if (!isValid) throw CustomError.badRequest('Credentials error');
-            // 3. Map the DTO to an entity
+            // 3. Create an audit log
+            await this.createAuditLog({
+                user_id: user.id,
+                action: ActionType.Read,
+                entity_type: 'users',
+                entity_id: user.id,
+                changes: { action: 'login' },
+                ip_address: ip,
+            });
+            // 4. Return the user entity
             return UserMapper.UserEntityFromObject(user);
         } catch (error) {
             console.error('Prisma error original:', error); // <-- Esto es clave
@@ -90,7 +99,7 @@ export class AuthPrismaDatasource implements AuthDatasource {
                 where: { email },
                 data: {
                     password_hash: hashedNewPassword,
-                    password_changed_at: new Date(), 
+                    password_changed_at: new Date(),
                 }
             });
             return UserMapper.UserEntityFromObject(updatedUser);
@@ -102,21 +111,23 @@ export class AuthPrismaDatasource implements AuthDatasource {
 
     async createAuditLog(createAuditLogsDto: CreateAuditLogsDto): Promise<AuditLogsEntity> {
         try {
+            
+
             const createdAuditLog = await prisma.audit_logs.create({
                 data: createAuditLogsDto!
-            })
+            });
 
             return AuditLogsEntity.fromObject(createdAuditLog);
         } catch (error) {
             if (error instanceof CustomError) throw error;
-            throw CustomError.internalServerError();
+            throw CustomError.internalServerError(`Failed to create audit log: ${error}`);
         }
 
     }
 
-    private sendEmailValidationLink = async(email:string)=>{
-        const token = await JwtAdapter.generateToken({email});
-        if( !token ) throw CustomError.internalServerError('Failed to generate token');
+    private sendEmailValidationLink = async (email: string) => {
+        const token = await JwtAdapter.generateToken({ email });
+        if (!token) throw CustomError.internalServerError('Failed to generate token');
         const link = `${envs.WEBSERVICE_URL}/auth/validate-email/${token}`;
         const html = `
             <p>Click the link below to validate your email:</p>
@@ -133,9 +144,9 @@ export class AuthPrismaDatasource implements AuthDatasource {
         return true;
     }
 
-    public validateEmail = async (token: string)=>{
+    public validateEmail = async (token: string) => {
         const payload = await JwtAdapter.validateToken(token);
-        if ( !payload ) throw CustomError.unauthorized('Invalid token');
+        if (!payload) throw CustomError.unauthorized('Invalid token');
 
         const { email } = payload as { email: string };
         if (!email) throw CustomError.internalServerError('Invalid email payload');

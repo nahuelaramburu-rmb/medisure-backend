@@ -1,21 +1,20 @@
 import { RecordType } from "../enums";
 
-
-export class MedicalRecordEntity{
+export class MedicalRecordEntity {
     constructor(
-        public id:string,
+        public id: string,
         public patient_id: string,
         public record_type: RecordType,
         public record_date: Date,
         public data: Object,
         public created_by_user_id: string,
         public document_id?: string,
-        public verified_by_user_id? :string,
+        public verified_by_user_id?: string,
         public confidence_score?: number,
-        public verified_at ?: Date,
-    ){}
+        public verified_at?: Date,
+    ) { }
 
-    static fromObject( object:{ [key:string]: any}): MedicalRecordEntity{
+    static fromObject(object: { [key: string]: any }): MedicalRecordEntity {
         const {
             id,
             patient_id,
@@ -29,39 +28,49 @@ export class MedicalRecordEntity{
             verified_at
         } = object;
 
+        if (!id) throw new Error('Missing id');
         if (!patient_id) throw new Error('Missing patient_id');
         if (!record_type) throw new Error('Missing record_type');
         if (!record_date) throw new Error('Missing record_date');
         if (!data) throw new Error('Missing data');
         if (!created_by_user_id) throw new Error('Missing created_by_user_id');
 
-        
-        if (!Object.values(RecordType).includes(record_type)) throw new Error('Invalid record_type value');
-        let newRecordDate;
-        const currentDate = new Date();
+        if (!Object.values(RecordType).includes(record_type)) {
+            throw new Error('Invalid record_type value');
+        }
+
+        let newRecordDate: Date;
         if (record_date) {
             newRecordDate = new Date(record_date);
-            if (isNaN(newRecordDate.getTime())) throw new Error('record_date must be a valid date');
-            if (newRecordDate.getTime() >= currentDate.getTime()) throw new Error('record_date must be earlier than the current date');
+            if (isNaN(newRecordDate.getTime())) {
+                throw new Error('record_date must be a valid date');
+            }
+
+            if (newRecordDate.getTime() > new Date().getTime()) {
+                throw new Error('record_date must be earlier than the current date');
+            }
+        } else {
+            throw new Error('record_date is required');
         }
-        if (
-            confidence_score !== undefined &&
-            ( confidence_score < 0 || confidence_score > 1)
-        ) {
+
+        if (confidence_score !== undefined && confidence_score !== null &&
+            (confidence_score < 0 || confidence_score > 1)) {
             throw new Error('confidence_score must be a number between 0 and 1');
         }
 
+
         return new MedicalRecordEntity(
-            id,
-            patient_id,
-            document_id,
-            record_type,
-            newRecordDate!,
-            data,
-            created_by_user_id,
-            verified_by_user_id,
-            confidence_score,
-            verified_at
-        )
+            id, 
+            patient_id, 
+            record_type, 
+            newRecordDate, 
+            data, 
+            created_by_user_id, 
+            document_id || undefined, 
+            verified_by_user_id || undefined, 
+            confidence_score || undefined, 
+            verified_at ? new Date(verified_at) : undefined
+            
+        );
     }
 }

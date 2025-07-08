@@ -77,3 +77,9 @@ export enum ActionType{
     Export = 'export',
     Verify = 'verify',
 }
+
+export enum SeverityLevel {
+    Mild = 'mild',
+    Moderate = 'moderate',
+    Severe = 'severe'
+}

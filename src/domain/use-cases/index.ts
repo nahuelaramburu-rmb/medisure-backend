@@ -27,6 +27,7 @@ export * from './medical-records/get-medical.records';
 export * from './medical-records/create-medical.record';
 export * from './medical-records/update-medical.record';
 export * from './medical-records/delete-medical.record';
+export * from './medical-records/alert-medical.record';
 
 export * from './cohorts/get-cohorts';
 export * from './cohorts/get-cohort';
@@ -45,3 +46,5 @@ export * from './documents/get-documents';
 export * from './documents/get-document';
 export * from './documents/update-document';
 export * from './documents/delete-document';
+
+export * from './audit-logs/export-audit-logs.use.case';

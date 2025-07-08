@@ -24,3 +24,5 @@ export * from './documents/update-document.dto';
 
 export * from './cohorts/create-cohort.dto';
 export * from './cohorts/update-cohort.dto';
+
+export * from './audit-logs/create-audit.log-dto';

@@ -36,23 +36,6 @@ export class LoginUser implements LoginUseUseCase {
         if (!token) {
             throw new Error("Failed to generate token");
         }
-       
-        try {
-            await this.authRepository.createAuditLog({
-                user_id: user.id,
-                action: ActionType.Read,
-                entity_type: 'users',
-                entity_id: user.id,
-                changes: { action: 'login' },
-                ip_address: ip,
-            })
-        } catch (error) {
-            console.error('Prisma error:', error);  
-            if (error instanceof CustomError) throw error;
-            throw CustomError.internalServerError();
-        }
-
-
         return {
             msg:'ok',
             token: token,

@@ -181,19 +181,10 @@ model medical_records {
   @@index([record_type], map: "idx_medical_records_type")
 }
 
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-enum AuditAction {
-  create
-  read
-  update
-  delete
-  export
-  verify
-}
 model audit_logs {
   id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   user_id     String   @db.Uuid
-  action      AuditAction
+  action      String   @db.VarChar(50)
   entity_type String   @db.VarChar(50)
   entity_id   String   @db.Uuid
   changes     Json?
