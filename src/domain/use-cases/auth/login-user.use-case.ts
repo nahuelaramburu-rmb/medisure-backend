@@ -36,14 +36,7 @@ export class LoginUser implements LoginUseUseCase {
         if (!token) {
             throw new Error("Failed to generate token");
         }
-        console.log({
-            user_id: user.id,
-            action: ActionType.Read,
-            entity_type: 'users',
-            entity_id: user.id,
-            changes: { action: 'login' },
-            ip_address: ip,
-        });
+       
         try {
             await this.authRepository.createAuditLog({
                 user_id: user.id,

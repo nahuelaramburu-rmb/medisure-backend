@@ -13,4 +13,5 @@ export abstract class AuthDatasource{
     abstract register(registerUserDto: RegisterUserDto):Promise<UserEntity>
     abstract changePassword(changePasswordDto: ChangePasswordDto):Promise<UserEntity>
     abstract createAuditLog(createAuditLogsDto: CreateAuditLogsDto): Promise<AuditLogsEntity>
+    abstract validateEmail(token: string):Promise<boolean>
 }

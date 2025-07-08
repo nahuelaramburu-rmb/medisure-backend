@@ -1,9 +1,9 @@
 import { AuthDatasource, ChangePasswordDto, CreateAuditLogsDto, CustomError, LoginUserDto, RegisterUserDto, UserEntity } from '../../domain';
 import { UserMapper } from '../mappers/user.mappers';
-import { BcryptAdapter } from '../../config';
+import { BcryptAdapter, envs, JwtAdapter } from '../../config';
 import { prisma } from '../../data/postgres';
 import { AuditLogsEntity } from '../../domain/entities/audit-logs.entity';
-import { create } from 'domain';
+import { EmailService } from '../../presentation/services/email.service';
 
 type HashFunction = (password: string) => string;
 type CompareFunction = (password: string, hashed: string) => boolean;
@@ -11,7 +11,8 @@ type CompareFunction = (password: string, hashed: string) => boolean;
 export class AuthPrismaDatasource implements AuthDatasource {
     constructor(
         private readonly hashPassword: HashFunction = BcryptAdapter.hash,
-        private readonly comparePassword: CompareFunction = BcryptAdapter.compare
+        private readonly comparePassword: CompareFunction = BcryptAdapter.compare,
+        private readonly emailService: EmailService = new EmailService( envs.MAILER_SERVICE, envs.MAILER_EMAIL, envs.MAILER_SECRET_KEY )
     ) { }
 
 
@@ -42,9 +43,12 @@ export class AuthPrismaDatasource implements AuthDatasource {
                     first_name,
                     last_name,
                     professional_id,
-                    password_changed_at: new Date(), // <-- fecha de primer cambio de contraseña
+                    password_changed_at: new Date(), 
                 }
             });
+            // 6. Send email validation link
+            await this.sendEmailValidationLink(email);
+
             return UserMapper.UserEntityFromObject(user);
         } catch (error) {
             console.error(error);
@@ -108,5 +112,38 @@ export class AuthPrismaDatasource implements AuthDatasource {
             throw CustomError.internalServerError();
         }
 
+    }
+
+    private sendEmailValidationLink = async(email:string)=>{
+        const token = await JwtAdapter.generateToken({email});
+        if( !token ) throw CustomError.internalServerError('Failed to generate token');
+        const link = `${envs.WEBSERVICE_URL}/auth/validate-email/${token}`;
+        const html = `
+            <p>Click the link below to validate your email:</p>
+            <a href="${link}">Validate Email: ${email}</a>
+        `;
+        const options = {
+            to: email,
+            subject: 'Email Validation',
+            htmlBody: html,
+        }
+
+        const isSent = await this.emailService.sendEmail(options);
+        if (!isSent) throw CustomError.internalServerError('Failed to send email');
+        return true;
+    }
+
+    public validateEmail = async (token: string)=>{
+        const payload = await JwtAdapter.validateToken(token);
+        if ( !payload ) throw CustomError.unauthorized('Invalid token');
+
+        const { email } = payload as { email: string };
+        if (!email) throw CustomError.internalServerError('Invalid email payload');
+
+        const user = await prisma.users.findUnique({ where: { email } });
+        if (!user) throw CustomError.notFound('User not found');
+
+        //TODO: change the user status to 'active'
+        return true;
     }
 }

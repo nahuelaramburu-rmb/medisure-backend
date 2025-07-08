@@ -7,6 +7,7 @@ export class AuthRepositoryImpl implements AuthRepository{
         private readonly authDatasource: AuthDatasource
     ){}
     
+    
     register( RegisterUserDto: RegisterUserDto): Promise<UserEntity>{
         return this.authDatasource.register(RegisterUserDto);
     }
@@ -19,5 +20,8 @@ export class AuthRepositoryImpl implements AuthRepository{
     createAuditLog(createAuditLogDto: CreateAuditLogsDto): Promise<AuditLogsEntity> {
         return this.authDatasource.createAuditLog(createAuditLogDto);
     }
-
+  
+    validateEmail(token: string): Promise<boolean> {
+        return this.authDatasource.validateEmail(token);
+    }
 }

@@ -1,7 +1,8 @@
 export * from './auth/change-password-use.case';
 export * from './auth/login-user.use-case';
 export * from './auth/register-user.use-case';
-
+export * from './auth/validate-email';
+    
 
 export * from './roles/create-role';
 export * from './roles/get-roles';

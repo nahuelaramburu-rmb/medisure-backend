@@ -12,4 +12,5 @@ export abstract class AuthRepository{
     abstract register(registerUserDto: RegisterUserDto):Promise<UserEntity>
     abstract changePassword(changePasswordDto: ChangePasswordDto):Promise<UserEntity>
     abstract createAuditLog( createAuditLogDto: CreateAuditLogsDto): Promise<AuditLogsEntity>
+    abstract validateEmail( token: string):Promise<boolean>
 }

@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { AuthRepository, CustomError, RegisterUser, RegisterUserDto, LoginUserDto, ChangePasswordDto } from '../../domain';
+import { AuthRepository, CustomError, RegisterUser, RegisterUserDto, LoginUserDto, ChangePasswordDto, ValidateEmail } from '../../domain';
 import { LoginUser } from '../../domain/use-cases/auth/login-user.use-case';
 import { ChangePassword } from '../../domain/use-cases/auth/change-password-use.case';
 import { logger } from '../../config/logger';
@@ -20,7 +20,6 @@ export class AuthController {
         const [error, loginUserDto] = LoginUserDto.create(req.body);
         
         let ip = req.headers['x-forwarded-for']?.toString().split(',')[0] || req.socket.remoteAddress || "0.0.0.0";
-        console.log("IP Address:", ip);
         if(error) return res.status(400).json({error});
 
         new LoginUser(this.authRepository)
@@ -74,6 +73,17 @@ export class AuthController {
                 msg: 'ok',
                 data
             }))
+            .catch( error => handleError(error, res) );
+    }
+
+    validateEmail = (req: Request, res: Response)=>{
+        const { token } = req.params;
+        new ValidateEmail(this.authRepository)
+            .execute( token )
+            .then( result => res.json({
+                msg: "ok",
+                result: "email validated successfully"
+            }) )
             .catch( error => handleError(error, res) );
     }
 

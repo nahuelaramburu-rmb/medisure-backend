@@ -25,7 +25,10 @@ export class AuthRoutes{
         });
         router.post('/change-password', AuthMiddleware.validateJWT, (req:Request, res:Response) =>{
             controller.changePassword(req, res);
-        })
+        });
+
+        router.get('/validate-email/:token', controller.validateEmail);
+        
         router.get('/', AuthMiddleware.validateJWT , (req: Request, res: Response) => {
             controller.getUsers(req, res)
         });
