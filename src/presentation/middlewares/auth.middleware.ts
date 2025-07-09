@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { JwtAdapter } from "../../config";
 import { prisma } from "../../data/postgres";
-// Extend the Request interface to include user or define a proper User type
+
 declare global {
     namespace Express {
         interface Request {
@@ -20,11 +20,11 @@ export class AuthMiddleware {
         }
         
         if (!authorization.startsWith('Bearer ')) {
-            res.status(401).json({ error: 'Unauthorized' });
+            res.status(401).json({ error: 'Invalid Bearer Token' });
             return;
         }
        
-        const token = authorization.split(' ')[1]; // Cleaner way to get token
+        const token = authorization.split(' ')[1] || ''; 
         
         try {
             const payload = await JwtAdapter.validateToken<{ id: string }>(token);
@@ -35,7 +35,7 @@ export class AuthMiddleware {
             }
             
             const user = await prisma.users.findUnique({where: { id: payload.id }});
-            
+            //TODO: Check if user exists
             if (!user) {
                 res.status(401).json({ error: 'User not found' });
                 return;

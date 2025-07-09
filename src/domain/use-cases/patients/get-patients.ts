@@ -1,15 +1,15 @@
-import { PatientEntity, PatientRepository } from "../..";
+import { PaginationDto, PatientEntity, PatientRepository } from "../..";
 
 
 
 export interface GetPatientsUseCase{
-    execute(): Promise<PatientEntity[]>,
+    execute(paginationDto:PaginationDto): Promise<PatientEntity[]>,
 }
 export class GetPatients implements GetPatientsUseCase{
     constructor(
         private readonly patientRepository: PatientRepository,
     ){}
-    execute(): Promise<PatientEntity[]> {
-        return this.patientRepository.getAll();
+    execute(paginationDto:PaginationDto): Promise<PatientEntity[]> {
+        return this.patientRepository.getAll(paginationDto);
     }
 }

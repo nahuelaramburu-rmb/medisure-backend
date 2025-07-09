@@ -1,4 +1,4 @@
-import { CreatePatientDto, PatientDataSource, PatientEntity, PatientRepository, UpdatePatientDto } from "../../domain";
+import { CreatePatientDto, PaginationDto, PatientDataSource, PatientEntity, PatientRepository, UpdatePatientDto, UserEntity } from "../../domain";
 
 
 export class PatientRepositoryImpl implements PatientRepository{
@@ -7,11 +7,11 @@ export class PatientRepositoryImpl implements PatientRepository{
     ){}
     
     
-    create(createPatientDto: CreatePatientDto): Promise<PatientEntity> {
-        return this.datasource.createPatient(createPatientDto);
+    create(createPatientDto: CreatePatientDto, userEntity:UserEntity): Promise<PatientEntity> {
+        return this.datasource.createPatient(createPatientDto, userEntity);
     }
-    getAll(): Promise<PatientEntity[]> {
-        return this.datasource.getAllPatients();
+    getAll(paginationDto:PaginationDto): Promise<PatientEntity[]> {
+        return this.datasource.getAllPatients(paginationDto);
     }
     getById(id: string): Promise<PatientEntity> {
         return this.datasource.getPatientById(id);

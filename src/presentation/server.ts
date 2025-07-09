@@ -67,7 +67,7 @@ export class Server {
                 await new CheckMedicalRecordAlert(
                     fileSystemLogRepository,
                     medicalRecordRepository
-                ).execute();
+                )//.execute();
             }
         );
     }
