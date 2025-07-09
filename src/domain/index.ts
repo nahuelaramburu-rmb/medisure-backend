@@ -17,6 +17,10 @@ export * from './entities/medical-record-alert.dto';
 export * from './entities/log-medical-record.entity';
 
 
+export * from './entities/chat/chat-mensaje.entity';
+export * from './entities/chat/chat-room.entity';
+
+
 export * from './errors/custom.error'; 
 
 export * from './repositories/auth.repository';

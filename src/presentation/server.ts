@@ -1,11 +1,11 @@
 import express, { Router } from 'express';
-import cors from 'cors'; 
+import cors from 'cors';
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from '../swagger';
 import { CronJob } from 'cron';
 import { CronService } from './services/cron.service';
 import { CheckMedicalRecordAlert, MedicalRecordRepository } from '../domain';
-import { LogRepository } from '../domain/repositories/log.repository';
+
 import { LogRepositoryImpl } from '../infraestructure/repositories/log.repository.impl';
 import { FileSystemDataSourceImpl } from '../infraestructure/datasources/file-system.datasource.impl';
 import { MedicalRecordRepositoryImpl } from '../infraestructure/repositories/medical-record.repository.impl';
@@ -13,7 +13,7 @@ import { MedicalRecordDataSourceImpl } from '../infraestructure/datasources/medi
 
 interface Options {
     port?: number;
-    routes: Router;
+    //routes: Router;
     middlewares?: any[]
 }
 
@@ -27,17 +27,16 @@ const medicalRecordRepository = new MedicalRecordRepositoryImpl(
 
 export class Server {
     public readonly app = express();
+    private serverListener?: any;
     private readonly port: number;
-    private readonly routes: Router;
+    //private readonly routes: Router;
 
     constructor(option: Options) {
-        const { port = 3100, routes } = option;
+        const { port = 3100 } = option;
         this.port = port;
-        this.routes = routes;
+        this.configure();
     }
-
-    async start() {
-        // CORS configuration - MUST be first!
+    private configure() {
         this.app.use(cors({
             origin: '*',
             credentials: true,
@@ -53,22 +52,30 @@ export class Server {
         this.app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
         // Defined routes
-        this.app.use(this.routes);
+        //this.app.use(this.routes);
 
-        this.app.listen(this.port, () => {
-            console.log(`Server is running on port ${this.port}`);
-            console.log(`Swagger UI is available at http://localhost:${this.port}/api-docs`);
-        })
+
 
         CronService.createJob(
             '*/5 * * * * *',
-            async() => {
+            async () => {
                 const date = new Date();
                 await new CheckMedicalRecordAlert(
                     fileSystemLogRepository,
                     medicalRecordRepository
-                ).execute();
+                )//.execute();
             }
         );
+    }
+
+    public setRoutes( router: Router ){
+        this.app.use(router);
+    }
+
+    async start() {
+        console.log("Express server starting...");
+    }
+    public close(){
+        this.serverListener?.close();
     }
 }

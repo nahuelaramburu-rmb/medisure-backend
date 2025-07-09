@@ -118,6 +118,8 @@ model users {
   patients_patients_created_by_user_idTousers                patients[]        @relation("patients_created_by_user_idTousers")
   patients_patients_primary_doctor_idTousers                 patients[]        @relation("patients_primary_doctor_idTousers")
   roles                                                      roles             @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_users_roles")
+  chat_messages_sent                                         chat_messages[]   @relation("user_messages")
+  chat_members                                               chat_members[]
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -191,4 +193,44 @@ model audit_logs {
   ip_address  String?  @db.Inet
   created_at  DateTime @default(now()) @db.Timestamptz(6)
   users       users    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model chat_rooms {
+  id         String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name       String?         @db.VarChar(100)
+  type       String          @db.VarChar(50) // Ej: 'general', 'diagnosis', etc.
+  created_by String          @db.Uuid // ID del usuario creador
+  created_at DateTime        @default(now()) @db.Timestamptz(6)
+  updated_at DateTime        @default(now()) @db.Timestamptz(6)
+  members    chat_members[]
+  messages   chat_messages[]
+}
+
+model chat_members {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  chat_room_id String   @db.Uuid
+  user_id      String   @db.Uuid // Usuario que pertenece a la sala
+  joined_at    DateTime @default(now()) @db.Timestamptz(6)
+
+  chat_room chat_rooms @relation(fields: [chat_room_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users     users      @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([chat_room_id, user_id], map: "chat_members_chat_room_id_user_id_unique")
+  @@index([chat_room_id], map: "idx_chat_members_chat_room_id")
+  @@index([user_id], map: "idx_chat_members_user_id")
+}
+
+model chat_messages {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  chat_room_id String   @db.Uuid
+  sender_id    String   @db.Uuid
+  content      String   @db.VarChar(1000)
+  mentions     String[] @db.VarChar(100)
+  sent_at      DateTime @default(now()) @db.Timestamptz(6)
+
+  chat_room chat_rooms @relation(fields: [chat_room_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  sender    users      @relation("user_messages", fields: [sender_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([chat_room_id], map: "idx_chat_messages_chat_room_id")
+  @@index([sender_id], map: "idx_chat_messages_sender_id")
 }

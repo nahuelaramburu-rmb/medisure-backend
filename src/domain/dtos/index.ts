@@ -27,3 +27,6 @@ export * from './cohorts/create-cohort.dto';
 export * from './cohorts/update-cohort.dto';
 
 export * from './audit-logs/create-audit.log-dto';
+
+export * from './chat/create-chat.messages.dto';
+export * from './chat/create-room.dto';

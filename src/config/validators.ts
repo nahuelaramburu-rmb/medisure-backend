@@ -16,4 +16,8 @@ export class Validators {
     return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
   }
 
+  static get user(){
+    return /@([a-zA-Z0-9-_]+)/g;
+  }
+
 }
