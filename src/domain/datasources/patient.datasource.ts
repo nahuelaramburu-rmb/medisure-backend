@@ -1,10 +1,10 @@
-import { CreatePatientDto, PatientEntity, UpdatePatientDto } from "..";
+import { CreatePatientDto, PaginationDto, PatientEntity, UpdatePatientDto, UserEntity } from "..";
 
 
 export abstract class PatientDataSource {
     
-    abstract createPatient(createPatientDto: CreatePatientDto): Promise<PatientEntity>;
-    abstract getAllPatients(): Promise<PatientEntity[]>;
+    abstract createPatient(createPatientDto: CreatePatientDto, userEntity: UserEntity): Promise<PatientEntity>;
+    abstract getAllPatients(paginationDto: PaginationDto): Promise<PatientEntity[]>;
     abstract getPatientById(id: string): Promise<PatientEntity>;
     abstract updatePatient(updatePatientDto: UpdatePatientDto): Promise<PatientEntity>;
     abstract deletePatient(id: string): Promise<PatientEntity>;

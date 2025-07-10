@@ -8,7 +8,7 @@ import { AuditLogsEntity } from '../entities/audit-logs.entity';
 
 
 export abstract class AuthDatasource{
-    
+    abstract getUsers():Promise<UserEntity[]>
     abstract login(loginUserDto: LoginUserDto, ip:string):Promise<UserEntity>
     abstract register(registerUserDto: RegisterUserDto):Promise<UserEntity>
     abstract changePassword(changePasswordDto: ChangePasswordDto):Promise<UserEntity>

@@ -1,9 +1,9 @@
-import { CreatePatientDto, CustomError, PatientEntity, PatientRepository } from "../..";
+import { CreatePatientDto, CustomError, PatientEntity, PatientRepository, UserEntity } from "../..";
 
 
 
 export interface CreatePatientUseCase {
-    execute(createPatientDto: CreatePatientDto): Promise<PatientEntity>;  
+    execute(createPatientDto: CreatePatientDto, userEntity: UserEntity): Promise<PatientEntity>;  
 }
 
 export class CreatePatient implements CreatePatientUseCase {
@@ -11,13 +11,13 @@ export class CreatePatient implements CreatePatientUseCase {
         private readonly patientRepository: PatientRepository,
     ) {}
 
-    async execute(createPatientDto: CreatePatientDto): Promise<PatientEntity> {
+    async execute(createPatientDto: CreatePatientDto, userEntity: UserEntity): Promise<PatientEntity> {
         const exist = await this.patientRepository.existMedicalRecordNumber(createPatientDto.medical_record_number);
         if (exist) {
             throw CustomError.conflict("Medical record number already exists");
         }
 
-        return this.patientRepository.create(createPatientDto);
+        return this.patientRepository.create(createPatientDto, userEntity);
         
     }
 }

@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
-import { CreatePatient, CreatePatientDto, DeletePatient, ExportPatients, ExportPatientsDto, GetPatientById, GetPatients, PatientRepository, UpdatePatient, UpdatePatientDto } from "../../domain";
+import { CreatePatient, CreatePatientDto, DeletePatient, ExportPatients, ExportPatientsDto, GetPatientById, GetPatients, PatientRepository, UpdatePatient, UpdatePatientDto, UserEntity } from "../../domain";
 import { handleError } from "../helpers/errors";
+import { PaginationDto } from '../../domain/dtos/shared/pagination.dto';
 
 
 export class PatientController{
@@ -9,8 +10,12 @@ export class PatientController{
     ){}
 
     getPatients = (req: Request, res: Response)=>{
+        const { page=1, limit=10} = req.query;
+        const [error, paginationDto] = PaginationDto.create(+page,+limit);
+        if (error) return res.status(400).json({ error });
+
         new GetPatients(this.patientRepository)
-            .execute()
+            .execute(paginationDto!)
             .then((patients)=>{
                 res.json({
                     msg:"ok",
@@ -36,9 +41,9 @@ export class PatientController{
     createPatient = async (req: Request, res: Response)=>{
         const [ error, patientDto ] = CreatePatientDto.create( req.body );
         if( error ) return res.status(400).json({ error });
-
+        
         new CreatePatient( this.patientRepository )
-            .execute( patientDto! )
+            .execute( patientDto!, req.user as UserEntity )
             .then((patient)=>{
                 res.json({
                     msg:"ok",

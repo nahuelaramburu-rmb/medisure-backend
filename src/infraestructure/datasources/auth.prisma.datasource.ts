@@ -14,6 +14,11 @@ export class AuthPrismaDatasource implements AuthDatasource {
         private readonly comparePassword: CompareFunction = BcryptAdapter.compare,
         private readonly emailService: EmailService = new EmailService(envs.MAILER_SERVICE, envs.MAILER_EMAIL, envs.MAILER_SECRET_KEY)
     ) { }
+    
+    async getUsers(): Promise<UserEntity[]> {
+        const users = await prisma.users.findMany();
+        return users.map(user => UserMapper.UserEntityFromObject(user));
+    }
 
 
     async register(registerUserDto: RegisterUserDto): Promise<UserEntity> {

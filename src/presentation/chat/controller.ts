@@ -12,7 +12,7 @@ export class ChatController{
     createRoom = async (req: Request, res: Response)=>{
         const [error, createRoomDto] = CreateRoomDto.create(req.body);
         if ( error ) return res.status(400).json({ error });
-        const { id_user } = req.params;
+        const { id_user } = req.user; 
 
         new CreateRoom(this.repository)
             .execute(createRoomDto!, id_user)

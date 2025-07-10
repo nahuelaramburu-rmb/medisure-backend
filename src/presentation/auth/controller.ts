@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
-import { AuthRepository, CustomError, RegisterUser, RegisterUserDto, LoginUserDto, ChangePasswordDto, ValidateEmail } from '../../domain';
-import { LoginUser } from '../../domain/use-cases/auth/login-user.use-case';
-import { ChangePassword } from '../../domain/use-cases/auth/change-password-use.case';
+import { AuthRepository, CustomError, RegisterUser, RegisterUserDto, LoginUserDto, ChangePasswordDto, ValidateEmail, GetUsers, LoginUser, ChangePassword } from '../../domain';
+
 import { logger } from '../../config/logger';
 import { prisma } from '../../data/postgres';
 import { handleError } from '../helpers/errors';
@@ -13,8 +12,6 @@ export class AuthController {
         private readonly authRepository: AuthRepository,
     ) {}
 
-
-    
 
     loginUser = async( req: Request, res:Response)=>{
         const [error, loginUserDto] = LoginUserDto.create(req.body);
@@ -36,10 +33,9 @@ export class AuthController {
     }
 
     logoutUser = (req: Request, res: Response) => {
-        const {id, token } = req.body;
-        prisma.users.findUnique({ where: { id } })
+        const { id_user } = req.body.user; 
+        prisma.users.findUnique({ where: { id:id_user } })
             .then(user => {
-                logger.info(`User logged out: ${id} with token: ${token}`);
                 res.json({ message: 'Logout successful' });
             })
             .catch(error => {
@@ -88,12 +84,15 @@ export class AuthController {
     }
 
     getUsers = (req: Request, res: Response) => {
-        prisma.users.findMany()
-            .then(users =>
-                    res.json({
-                        users,
-                        //user: req.body.user 
-                    }))
-            .catch(error => handleError(error, res));
+        new GetUsers(this.authRepository)
+            .execute()
+            .then((data) => {
+                res.json({
+                    msg: 'ok',
+                    data    
+                });
+            })
+            .catch( error => handleError(error, res)
+        )
     }
 }

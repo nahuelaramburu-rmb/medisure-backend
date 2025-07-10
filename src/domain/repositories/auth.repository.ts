@@ -7,7 +7,7 @@ import { UserEntity } from '../entities/user.entity';
 
 
 export abstract class AuthRepository{
-    
+    abstract getUsers():Promise<UserEntity[]>
     abstract login(LoginUserDto: LoginUserDto, ip:string):Promise<UserEntity>
     abstract register(registerUserDto: RegisterUserDto):Promise<UserEntity>
     abstract changePassword(changePasswordDto: ChangePasswordDto):Promise<UserEntity>
