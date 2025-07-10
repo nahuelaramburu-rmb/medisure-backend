@@ -19,5 +19,8 @@ export class ChatRepositoryImpl implements ChatRepository{
     getMessageById(messageId: string): Promise<ChatMessageEntity | null> {
         return this.datasource.getMessageById(messageId);
     }
+    getRooms(): Promise<ChatRoomEntity[]> {
+        return this.datasource.getRooms();
+    }
 
 }

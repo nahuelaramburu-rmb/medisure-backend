@@ -10,4 +10,5 @@ export abstract class ChatDataSource{
     
     
     abstract createRoom(createRoomDto: CreateRoomDto, id_user:string): Promise<ChatRoomEntity>;
+    abstract getRooms(): Promise<ChatRoomEntity[]>;
 }

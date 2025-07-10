@@ -50,3 +50,6 @@ export * from './documents/update-document';
 export * from './documents/delete-document';
 
 export * from './audit-logs/export-audit-logs.use.case';
+
+export * from './chat/create-room';
+export * from './chat/get-rooms';

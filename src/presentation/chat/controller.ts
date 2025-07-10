@@ -1,4 +1,4 @@
-import { CreateRoomDto } from "../../domain";
+import { CreateRoomDto, GetAllRooms, UserEntity } from "../../domain";
 import { ChatRepository } from "../../domain/repositories/chat.repository";
 import { Request, Response } from "express";
 import { CreateRoom } from "../../domain/use-cases/chat/create-room";
@@ -12,10 +12,10 @@ export class ChatController{
     createRoom = async (req: Request, res: Response)=>{
         const [error, createRoomDto] = CreateRoomDto.create(req.body);
         if ( error ) return res.status(400).json({ error });
-        const { id_user } = req.user; 
-
+        const { id } = req.user as UserEntity; 
+        
         new CreateRoom(this.repository)
-            .execute(createRoomDto!, id_user)
+            .execute(createRoomDto!, id)
             .then( data => {
                 res.json({
                     msg: "ok",
@@ -45,7 +45,15 @@ export class ChatController{
     getRoomById(arg0: string, getRoomById: any) {
         throw new Error("Method not implemented.");
     }
-    getAllRooms(arg0: string, getAllRooms: any) {
-        throw new Error("Method not implemented.");
+    getAllRooms = async (req: Request, res: Response) => {
+        new GetAllRooms(this.repository)
+            .execute()
+            .then( data => {
+                res.json({
+                    msg: "ok",
+                    data: data
+                });
+            })
+            .catch( error => handleError(error, res) ); 
     }
 }

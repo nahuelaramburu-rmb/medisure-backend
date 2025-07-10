@@ -5,21 +5,37 @@ import { ChatDataSource } from "../../domain/datasources/chat.datasource";
 
 export class ChatDataSourceImpl implements ChatDataSource {
     
-    async createRoom(createRoomDto: CreateRoomDto, id_user:string): Promise<ChatRoomEntity> {
-        try{
-            const { ...roomData } = createRoomDto!;
+    async getRooms(): Promise<ChatRoomEntity[]> {
+        const rooms = await prisma.chat_rooms.findMany();
+        return rooms.map(room => ChatRoomEntity.fromObject(room));
+    }
+    
+    async createRoom(createRoomDto: CreateRoomDto, id_user: string): Promise<ChatRoomEntity> {
+        try {
+            
             const room = await prisma.chat_rooms.create({
                 data: {
-                    ...roomData,
-                    created_by: id_user,
-                    members: {
-                        connect: [{ id: id_user }]
-                    }
-                },
+                    ...createRoomDto,
+                    created_by: id_user
+                }
+            });
+
+            
+            await prisma.chat_members.create({
+                data: {
+                    chat_room_id: room.id,
+                    user_id: id_user
+                }
+            });
+
+            
+            const roomWithMembers = await prisma.chat_rooms.findUnique({
+                where: { id: room.id },
                 include: { members: true }
             });
-            return ChatRoomEntity.fromObject(room);
-        }catch (error){
+
+            return ChatRoomEntity.fromObject(roomWithMembers!);
+        } catch (error) {
             console.log(error);
             throw CustomError.internalServerError();
         }

@@ -9,4 +9,5 @@ export interface ChatRepository{
     getMessageById(messageId: string): Promise<ChatMessageEntity | null>;
     
     createRoom(createRoomDto: CreateRoomDto, id_user:string): Promise<ChatRoomEntity>;
+    getRooms(): Promise<ChatRoomEntity[]>;  
 }
