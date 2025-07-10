@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat WebSocket Demo</title>
+</head>
+
+<body>
+    <h1>Websockets - <small>Status</small></h1>
+    <form id="create-room-form">
+        <input type="text" id="name-room" placeholder="name room" />
+        <input type="text" id="type-room" placeholder="type room" />
+        <button type="submit" id="create-ticket-btn">Create room</button>
+    </form>
+
+    <form id="join-room-form">
+        <input type="text" id="join-room-id" placeholder="Join with roomId" />
+        <button type="submit">Join room</button>
+    </form>
+
+    <form id="message-form">
+        <input type="text" id="message-input" placeholder="Enviar mensaje" />
+        <button type="submit">Enviar</button>
+    </form>
+
+    <ul id="messages"></ul>
+
+    <script>
+        let socket = null;
+        let currentRoomId = null;
+
+        const formRoom = document.querySelector('#create-room-form');
+        const nameInput = document.querySelector('#name-room');
+        const typeInput = document.querySelector('#type-room');
+        const joinRoomForm = document.getElementById('join-room-form');
+        const joinRoomInput = document.getElementById('join-room-id');
+        const messageForm = document.getElementById('message-form');
+        const messageInput = document.getElementById('message-input');
+        const messagesElem = document.getElementById('messages');
+        const statusElem = document.querySelector('small');
+
+        function renderMessage(message) {
+            const li = document.createElement('li');
+            li.innerHTML = message;
+            messagesElem.prepend(li);
+        }
+
+        async function createRoom(name, type) {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('No token found. Please login first.');
+                return;
+            }
+            try {
+                const response = await fetch('http://localhost:3010/v1/api/chat/create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        name: name,
+                        type: type
+                    })
+                });
+                const room = await response.json();
+                if (room.id) {
+                    currentRoomId = room.id;
+                    joinRoom(currentRoomId);
+                    renderMessage(`<i>Room created and joined: ${currentRoomId}</i>`);
+                } else {
+                    renderMessage(`<i>Error creating room: ${room.error || 'Unknown error'}</i>`);
+                }
+            } catch (error) {
+                console.error('Error creating room:', error);
+                renderMessage(`<i>Error creating room</i>`);
+            }
+        }
+
+        function joinRoom(roomId) {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('No token found. Please login first.');
+                return;
+            }
+            if (!socket || socket.readyState !== WebSocket.OPEN) {
+                renderMessage('<i>WebSocket not connected</i>');
+                return;
+            }
+            currentRoomId = roomId;
+            socket.send(JSON.stringify({
+                type: 'join_room',
+                payload: { roomId, token }
+            }));
+            renderMessage(`<i>Trying to join room: ${roomId}</i>`);
+        }
+
+        function sendMessage(content) {
+            if (!currentRoomId) {
+                alert('Join or create a room first!');
+                return;
+            }
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('No token found. Please login first.');
+                return;
+            }
+            socket?.send(JSON.stringify({
+                type: 'send_message',
+                payload: {
+                    roomId: currentRoomId,
+                    userId: token, 
+                    content
+                }
+            }));
+        }
+
+        formRoom.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const name = nameInput.value;
+            const type = typeInput.value;
+            createRoom(name, type);
+            nameInput.value = '';
+            typeInput.value = '';
+        });
+
+        joinRoomForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const roomId = joinRoomInput.value.trim();
+            
+            if (roomId) {
+                joinRoom(roomId);
+                joinRoomInput.value = '';
+            }
+        });
+
+        messageForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const message = messageInput.value;
+            sendMessage(message);
+            messageInput.value = '';
+        });
+
+        function connectToServer() {
+            socket = new WebSocket('ws://localhost:3010/ws');
+
+            socket.onopen = () => {
+                statusElem.innerText = 'Online';
+                renderMessage('<i>WebSocket connected</i>');
+            };
+
+            socket.onclose = () => {
+                statusElem.innerText = 'Offline';
+                renderMessage('<i>WebSocket disconnected</i>');
+                setTimeout(connectToServer, 1500);
+            };
+
+            socket.onmessage = (event) => {
+                const { type, payload } = JSON.parse(event.data);
+                if (type === 'new_message') {
+                    renderMessage(`<b>${payload.senderId}:</b> ${payload.content}`);
+                } else if (type === 'joined_room') {
+                    renderMessage(`<i>Joined room: ${payload.roomId}</i>`);
+                } else {
+                    renderMessage(JSON.stringify(payload));
+                }
+            };
+        }
+
+        connectToServer();
+    </script>
+</body>
+</html>

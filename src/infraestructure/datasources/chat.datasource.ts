@@ -1,10 +1,16 @@
 import { prisma } from "../../data/postgres";
 import { CreateChatMessageDto, ChatMessageEntity, CustomError, ChatRoomEntity, CreateRoomDto } from "../../domain";
 import { ChatDataSource } from "../../domain/datasources/chat.datasource";
+import { WssService } from "../../presentation/services/wss.service";
 
 
 export class ChatDataSourceImpl implements ChatDataSource {
     
+    constructor(
+        private readonly wwService = WssService.instance
+    ){
+
+    }
     async getRooms(): Promise<ChatRoomEntity[]> {
         const rooms = await prisma.chat_rooms.findMany();
         return rooms.map(room => ChatRoomEntity.fromObject(room));
@@ -33,7 +39,8 @@ export class ChatDataSourceImpl implements ChatDataSource {
                 where: { id: room.id },
                 include: { members: true }
             });
-
+            this.onUserMemberJoined(room.id, id_user);
+            
             return ChatRoomEntity.fromObject(roomWithMembers!);
         } catch (error) {
             console.log(error);
@@ -90,5 +97,11 @@ export class ChatDataSourceImpl implements ChatDataSource {
             throw new Error(`Error finding chat room with ID ${roomId}`);
         }
 
+    }
+    private onUserMemberJoined(roomId: string, userId: string) {
+        this.wwService.sendMessage('user_joined', {
+            roomId,
+            userId
+        });
     }
 }
