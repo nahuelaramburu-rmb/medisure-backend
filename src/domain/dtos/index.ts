@@ -23,6 +23,8 @@ export * from './medicalRecords/update-medical.record.dto';
 export * from './patients/create-patient.dto';
 export * from './patients/export-patients.dto';
 export * from './patients/update-patient.dto';
+export * from './patient-consent/create-patient.consent.dto';
+
 export * from './roles/create-role.dto';
 export * from './roles/update-role.dto';
 export * from './shared/pagination.dto';

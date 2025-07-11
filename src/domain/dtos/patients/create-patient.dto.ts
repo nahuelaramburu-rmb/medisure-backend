@@ -1,7 +1,7 @@
 import { BloodType, Gender } from "../../enums";
 
 
-export class CreatePatientDto{
+export class    CreatePatientDto{
     private constructor(
         public medical_record_number: string,
         public first_name: string, 

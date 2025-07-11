@@ -15,7 +15,8 @@ export * from './entities/cohort.entity';
 export * from './entities/audit-logs.entity';
 export * from './entities/medical-record-alert.dto';
 export * from './entities/log-medical-record.entity';
-
+export * from './entities/patient-consent.entity';
+export * from './entities/access-log.entity';
 
 export * from './entities/chat/chat-mensaje.entity';
 export * from './entities/chat/chat-room.entity';
@@ -33,6 +34,8 @@ export * from './repositories/document.repository'
 export * from './repositories/cohort.repository';
 export * from './repositories/audit-log.repository';
 export * from './repositories/log.repository';
+export * from './repositories/patient-consent.repository';
+export * from './repositories/chat.repository';
 
 
 export * from './datasources/auth.datasource';
@@ -45,3 +48,6 @@ export * from './datasources/document.datasource';
 export * from './datasources/cohort.datasource';
 export * from './datasources/audit-log.datasource';
 export * from './datasources/log.datasource';
+
+export * from './datasources/patient.consent.datasource';
+export * from './datasources/chat.datasource';
