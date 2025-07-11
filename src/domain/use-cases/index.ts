@@ -53,3 +53,9 @@ export * from './audit-logs/export-audit-logs.use.case';
 
 export * from './chat/create-room';
 export * from './chat/get-rooms';
+
+export * from './patient-consent/create-consent.patient';
+export * from './patient-consent/get-consentByPatientId';
+export * from './patient-consent/get-logs.acces-by-patient';
+export * from './patient-consent/revoke-consent';
+

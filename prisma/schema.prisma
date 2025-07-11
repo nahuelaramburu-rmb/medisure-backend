@@ -57,27 +57,30 @@ model documents {
   medical_records     medical_records[]
 }
 
-/// This table contains check constraints and requires additional setup for migrations. Visit https://p  id                                       String            id                                       String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  medical_record_number                    String            @unique(map: "idx_patients_mrn") @db.VarChar(50)
-  first_name                               String            @db.VarChar(100)
-  last_name                                String            @db.VarChar(100)
-  date_of_birth                            DateTime          @db.Date
-  gender                                   String?           @db.VarChar(20)
-  phone                                    String?           @db.VarChar(20)
-  email                                    String?           @db.VarChar(255)
-  blood_type                               String?           @db.VarChar(10)
-  emergency_contact_name                   String?           @db.VarChar(200)
-  emergency_contact_phone                  String?           @db.VarChar(20)
-  primary_doctor_id                        String?           @db.Uuid
-  created_by_user_id                       String            @db.Uuid
-  created_at                               DateTime          @default(now()) @db.Timestamptz(6)
-  updated_at                               DateTime          @default(now()) @db.Timestamptz(6)
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model patients {
+  id                                       String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  medical_record_number                    String             @unique(map: "idx_patients_mrn") @db.VarChar(50)
+  first_name                               String             @db.VarChar(100)
+  last_name                                String             @db.VarChar(100)
+  date_of_birth                            DateTime           @db.Date
+  gender                                   String?            @db.VarChar(20)
+  phone                                    String?            @db.VarChar(20)
+  email                                    String?            @db.VarChar(255)
+  blood_type                               String?            @db.VarChar(10)
+  emergency_contact_name                   String?            @db.VarChar(200)
+  emergency_contact_phone                  String?            @db.VarChar(20)
+  primary_doctor_id                        String?            @db.Uuid
+  created_by_user_id                       String             @db.Uuid
+  created_at                               DateTime           @default(now()) @db.Timestamptz(6)
+  updated_at                               DateTime           @default(now()) @db.Timestamptz(6)
   appointments                             appointments[]
   cohort_patients                          cohort_patients[]
   documents                                documents[]
   medical_records                          medical_records[]
-  users_patients_created_by_user_idTousers users             @relation("patients_created_by_user_idTousers", fields: [created_by_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  users_patients_primary_doctor_idTousers  users?            @relation("patients_primary_doctor_idTousers", fields: [primary_doctor_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users_patients_created_by_user_idTousers users              @relation("patients_created_by_user_idTousers", fields: [created_by_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users_patients_primary_doctor_idTousers  users?             @relation("patients_primary_doctor_idTousers", fields: [primary_doctor_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  patient_consents                         patient_consents[]
 }
 
 model roles {
@@ -118,6 +121,7 @@ model users {
   roles                                                      roles             @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_users_roles")
   chat_messages_sent                                         chat_messages[]   @relation("user_messages")
   chat_members                                               chat_members[]
+  access_logs                                                access_logs[]
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -233,7 +237,31 @@ model chat_messages {
   @@index([sender_id], map: "idx_chat_messages_sender_id")
 }
 
-id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+model patient_consents {
+  id          String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  patient_id  String        @db.Uuid
+  is_accepted Boolean // true = aceptado, false = revocado
+  revoked_at  DateTime?
+  updated_at  DateTime      @default(now()) @db.Timestamptz(6)
+  created_at  DateTime      @default(now()) @db.Timestamptz(6)
+  access_logs access_logs[]
+
+  patients patients @relation(fields: [patient_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([patient_id], map: "idx_patient_consents_patient_id")
+}
+
+model access_logs {
+  id                 String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  patient_consent_id String   @db.Uuid
+  user_id            String   @db.Uuid
+  accessed_at        DateTime @default(now()) @db.Timestamptz(6)
+  access_type        String   @db.VarChar(50) // Ej: 'view', 'download', etc.
+  ip_address         String?  @db.Inet
+  created_at         DateTime @default(now()) @db.Timestamptz(6)
+
+  patient_consents patient_consents @relation(fields: [patient_consent_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users            users            @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([patient_consent_id], map: "idx_access_logs_patient_consent_id")
   @@index([user_id], map: "idx_access_logs_user_id")

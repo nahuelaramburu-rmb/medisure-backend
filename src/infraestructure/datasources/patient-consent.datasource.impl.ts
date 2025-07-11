@@ -6,15 +6,14 @@ import { AccessLogEntity, CreatePatientConsentDto, PatientConsentDatasource, Pat
 
 export class PatientConsentDatasourceImpl implements PatientConsentDatasource {
 
-    async getConsentsByPatientId(patientId: string): Promise<PatientConsentEntity> {
+    async getConsentByPatientId(patientId: string): Promise<PatientConsentEntity[]> {
         const patient = this.getPatientById(patientId);
         if (!patient) throw new Error("Patient not found");
         const consent = await prisma.patient_consents.findMany({
             where: { patient_id: patientId },
             orderBy: { created_at: 'desc' },
-            
         });
-        return PatientConsentEntity.fromObject(consent);
+        return consent.map(consent => PatientConsentEntity.fromObject(consent));
     }
 
     async createConsent(createConsentDto: CreatePatientConsentDto): Promise<PatientConsentEntity> {

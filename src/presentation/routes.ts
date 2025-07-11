@@ -11,6 +11,7 @@ import { CohortPatientController } from "./cohort-patient/controller";
 import { CohortPatientRouter } from "./cohort-patient/routes";
 import { AuditLogRouter } from "./audit-log/routes";
 import { ChatRoutes } from "./chat/routes";
+import { PatientConsentRoutes } from "./patient-consent/routes";
 
 export class AppRoutes{
     static get routes(): Router{
@@ -26,7 +27,8 @@ export class AppRoutes{
         router.use('/v1/api/cohorts', CohortRouter.routes); 
         router.use('/v1/api/cohorts', CohortPatientRouter.routes); // Cohort patients routes
         router.use('/v1/api/audit-logs', AuditLogRouter.routes);
-        router.use('/v1/api/chat', ChatRoutes.routes)
+        router.use('/v1/api/chat', ChatRoutes.routes);
+        router.use('/v1/api/consents', PatientConsentRoutes.routes);
         return router;
     }
 }

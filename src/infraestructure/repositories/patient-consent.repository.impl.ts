@@ -5,8 +5,8 @@ export class PatientConsentRepositoryImpl implements PatientConsentRepository{
     constructor(
         private readonly datasource: PatientConsentDatasource
     ){}
-    getConsent(patientId: string): Promise<PatientConsentEntity> {
-        return this.datasource.getConsent(patientId);
+    getConsentByIdPatient(patientId: string): Promise<PatientConsentEntity[]> {
+        return this.datasource.getConsentByPatientId(patientId);
     }
     createConsent(createConsentDto: CreatePatientConsentDto): Promise<PatientConsentEntity> {
         return this.datasource.createConsent(createConsentDto);
