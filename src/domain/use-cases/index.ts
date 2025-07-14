@@ -2,7 +2,7 @@ export * from './auth/change-password-use.case';
 export * from './auth/login-user.use-case';
 export * from './auth/register-user.use-case';
 export * from './auth/validate-email';
-export * from './auth/get-users';
+export * from './user/get-users';
     
 
 export * from './roles/create-role';
@@ -58,4 +58,8 @@ export * from './patient-consent/create-consent.patient';
 export * from './patient-consent/get-consentByPatientId';
 export * from './patient-consent/get-logs.acces-by-patient';
 export * from './patient-consent/revoke-consent';
+
+
+export * from './user/get-user.by.id';
+export * from './user/get-users';
 

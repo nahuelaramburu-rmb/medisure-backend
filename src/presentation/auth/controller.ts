@@ -83,16 +83,5 @@ export class AuthController {
             .catch( error => handleError(error, res) );
     }
 
-    getUsers = (req: Request, res: Response) => {
-        new GetUsers(this.authRepository)
-            .execute()
-            .then((data) => {
-                res.json({
-                    msg: 'ok',
-                    data    
-                });
-            })
-            .catch( error => handleError(error, res)
-        )
-    }
+        
 }

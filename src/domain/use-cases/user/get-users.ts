@@ -1,5 +1,5 @@
 import { UserEntity } from "../../entities/user.entity";
-import { AuthRepository } from "../../repositories/auth.repository";
+import { UserRepository } from "../../repositories/user.repository";
 
 
 
@@ -9,10 +9,10 @@ interface GetUsersUseCase{
 
 export class GetUsers implements GetUsersUseCase{
     constructor(
-        private readonly authRepository: AuthRepository
+        private readonly repository: UserRepository
     ){}
     execute(): Promise<UserEntity[]> {
-        return this.authRepository.getUsers();
+        return this.repository.getUsers();
     }
     
 }

@@ -3,3 +3,5 @@ ALTER TABLE "access_logs" ADD COLUMN     "created_at" TIMESTAMPTZ(6) NOT NULL DE
 
 -- AlterTable
 ALTER TABLE "patient_consents" ADD COLUMN     "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
+

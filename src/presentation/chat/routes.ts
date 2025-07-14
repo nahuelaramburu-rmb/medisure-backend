@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { Request, Response } from "express";
-import { ChatDataSourceImpl } from "../../infraestructure/datasources/chat.datasource";
+import { ChatDataSourceImpl } from "../../infraestructure/datasources/chat.datasource.impl";
 import { ChatRepositoryImpl } from "../../infraestructure/repositories/chat.repository.impl";
 import { ChatController } from "./controller";
 import { AuthMiddleware } from "../middlewares/auth.middleware";

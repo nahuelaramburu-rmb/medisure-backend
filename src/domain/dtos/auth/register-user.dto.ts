@@ -4,6 +4,8 @@ import { Validators } from "../../../config";
 
 export class RegisterUserDto{
     private constructor(
+        
+        public user_name: string,
         public email: string,
         public password: string,
         public role_id: string,
@@ -17,8 +19,9 @@ export class RegisterUserDto{
     ){}
 
     static create( object: {[key:string]:any}): [string?, RegisterUserDto?]{
-        const { email, password, role_id, first_name, last_name, professional_id, department, is_active, last_login } = object;
-        
+        const { user_name, email, password, role_id, first_name, last_name, professional_id, department, is_active, last_login } = object;
+        if(!user_name) return ['Missing user_name'];
+        if(user_name.length < 3 || user_name.length > 50) return ['user_name must be between 3 and 50 characters long'];
         if(!email) return ['Missing email'];
         if(!Validators.email.test(email)) return ['Invalid email'];
 
@@ -33,6 +36,7 @@ export class RegisterUserDto{
         return [
             undefined,
             new RegisterUserDto(
+                user_name,
                 email,
                 password,
                 role_id,

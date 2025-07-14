@@ -15,14 +15,10 @@ export class AuthPrismaDatasource implements AuthDatasource {
         private readonly emailService: EmailService = new EmailService(envs.MAILER_SERVICE, envs.MAILER_EMAIL, envs.MAILER_SECRET_KEY)
     ) { }
     
-    async getUsers(): Promise<UserEntity[]> {
-        const users = await prisma.users.findMany();
-        return users.map(user => UserMapper.UserEntityFromObject(user));
-    }
-
+    
 
     async register(registerUserDto: RegisterUserDto): Promise<UserEntity> {
-        let { email, password, role_id, department, first_name, last_name, professional_id } = registerUserDto;
+        let { user_name, email, password, role_id, department, first_name, last_name, professional_id } = registerUserDto;
         try {
             // 1. Verify if the user already exists
             const exist = await prisma.users.findUnique({ where: { email } });
@@ -41,6 +37,7 @@ export class AuthPrismaDatasource implements AuthDatasource {
             // 5. Create the user
             const user = await prisma.users.create({
                 data: {
+                    user_name,
                     email,
                     password_hash: hashedPassword,
                     role_id,

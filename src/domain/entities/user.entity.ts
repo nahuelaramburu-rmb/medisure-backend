@@ -1,6 +1,7 @@
 export class UserEntity {
     constructor(
         public id: string,
+        public user_name: string,
         public email: string,
         public password: string,
         public password_changed_at: Date,
@@ -20,6 +21,7 @@ export class UserEntity {
     static fromObject(object: { [key: string]: any }): UserEntity {
         const {
             id,
+            user_name,
             email,
             password,
             password_changed_at,
@@ -37,6 +39,7 @@ export class UserEntity {
 
         return new UserEntity(
             id,
+            user_name,
             email,
             password,
             new Date(password_changed_at),

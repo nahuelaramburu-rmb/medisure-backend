@@ -95,6 +95,7 @@ model roles {
 
 model users {
   id                                                         String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_name                                                  String            @unique(map: "users_user_name_unique") @db.VarChar(50)
   email                                                      String            @unique(map: "idx_users_email") @db.VarChar(255)
   password_hash                                              String            @db.VarChar(255)
   role_id                                                    String            @db.Uuid
