@@ -1,23 +1,28 @@
+
 import { prisma } from "../../data/postgres";
-import { CreateClinicalTrialDto, CustomError, TrialEnrollmentStatusResponse, TrialStatusBreakdown, UpdateClinicalTrialDto} from "../../domain";
+import { CreateClinicalTrialDto, CustomError, GetKpiAcrossTrialsDto, GroupBy, PaginationDto, TrialElegibleCandidateResponse, TrialEnrollmentResponse, TrialEnrollmentStatusResponse, TrialStatusBreakdown, UpdateClinicalTrialDto } from "../../domain";
 import { ClinicalTrialDataSource } from "../../domain/datasources/clinical-trial.datasource";
 import { ClinicalTrialEntity } from "../../domain/entities/clinical-trial.entity";
-import { clinical_trials } from '../../generated/prisma/index';
+
+import { TrialPerformanceMetricsResponse } from '../../domain/dtos/clinicalTrial/responses-format/trial.enrollment.status.response ';
+import { handleError } from "../../presentation/helpers/errors";
 
 
-export class ClinicalTrialDataSourceImpl implements ClinicalTrialDataSource{
+export class ClinicalTrialDataSourceImpl implements ClinicalTrialDataSource {
 
     async create(createClinicalTrialDto: CreateClinicalTrialDto): Promise<ClinicalTrialEntity> {
+
         const clinicalTrial = await prisma.clinical_trials.create({
             data: createClinicalTrialDto!
         })
         return ClinicalTrialEntity.fromObject(clinicalTrial);
+
     }
     async getById(id: string): Promise<ClinicalTrialEntity> {
         const clinicalTrial = await prisma.clinical_trials.findUnique({
-            where: { id } 
+            where: { id }
         });
-        if ( !clinicalTrial) throw new CustomError(404,`Clinical Trial not found ${id}` );
+        if (!clinicalTrial) throw new CustomError(404, `Clinical Trial not found ${id}`);
         return ClinicalTrialEntity.fromObject(clinicalTrial);
     }
     async getAll(): Promise<ClinicalTrialEntity[]> {
@@ -26,13 +31,13 @@ export class ClinicalTrialDataSourceImpl implements ClinicalTrialDataSource{
         return clinicalTrials.map(clinicalTrial => ClinicalTrialEntity.fromObject(clinicalTrial));
     }
     async updateById(updateClinicalTrialDto: UpdateClinicalTrialDto): Promise<ClinicalTrialEntity> {
-        await this.getById(updateClinicalTrialDto.id); 
+        await this.getById(updateClinicalTrialDto.id);
 
         const updatedClinicalTrial = await prisma.clinical_trials.update({
             where: { id: updateClinicalTrialDto.id },
             data: updateClinicalTrialDto!.values
         });
-        
+
         return ClinicalTrialEntity.fromObject(updatedClinicalTrial);
     }
 
@@ -46,12 +51,12 @@ export class ClinicalTrialDataSourceImpl implements ClinicalTrialDataSource{
         return ClinicalTrialEntity.fromObject(deletedClinicalTrial);
     }
 
-    async getClinicalTrialSumary(): Promise<TrialEnrollmentStatusResponse> {
+    async getClinicalTrialSumary(): Promise<TrialEnrollmentResponse> {
         const total_clinical_trials = await prisma.clinical_trials.count();
 
         const status_breakdown_raw = await prisma.clinical_trials.groupBy({
             by: ['status'],
-            _count: {status: true},
+            _count: { status: true },
         });
         const status_breakdown: Record<string, number> = {
             active: 0,
@@ -67,10 +72,10 @@ export class ClinicalTrialDataSourceImpl implements ClinicalTrialDataSource{
         const total_patints_enrolled_agg = await prisma.clinical_trials.aggregate({
             _sum: { patient_count: true }
         });
-        
+
         const total_patients_enrolled = total_patints_enrolled_agg._sum.patient_count || 0;
 
-        const summary: TrialEnrollmentStatusResponse = {
+        const summary: TrialEnrollmentResponse = {
             total_trials: total_clinical_trials,
             status_breakdown: {
                 active: status_breakdown.active,
@@ -81,8 +86,226 @@ export class ClinicalTrialDataSourceImpl implements ClinicalTrialDataSource{
             },
             total_patients_enrolled
         };
-        
+
         return summary;
 
     }
+
+    async getClinicalTrialEnrollmentStatus(id: string): Promise<TrialEnrollmentStatusResponse> {
+        const clinicalTrial = await this.getById(id);
+
+        const enrollmentStatus: TrialEnrollmentStatusResponse = {
+            trialId: clinicalTrial.id,
+            trialIdentifier: clinicalTrial.trial_identifier,
+            title: clinicalTrial.title,
+            currentEnrollment: clinicalTrial.patient_count || 0,
+            status: clinicalTrial.status,
+            startDate: clinicalTrial.start_date,
+            endDate: clinicalTrial.end_date
+        };
+
+        return enrollmentStatus;
+    }
+
+    async getClinicalTrialEligibleCandidates(id: string, paginationDto: PaginationDto, minScore?: number): Promise<TrialElegibleCandidateResponse> {
+
+        const clinicalTrial = await this.getById(id);
+
+        const { limit, offset } = paginationDto;
+
+        // get ids for enrolled patients
+        const enrolledPatientsIds = await prisma.cohort_patients.findMany({
+            where: { cohort_id: id }, // <-- CORREGIDO
+            select: { patient_id: true }
+        });
+
+        const excludeIds = enrolledPatientsIds.map(patient => patient.patient_id);
+
+        // not enrolled patients
+        const patients = await prisma.patients.findMany({
+            where: {
+                id: { notIn: excludeIds }
+            },
+            skip: offset,
+            take: limit,
+        });
+
+        // elegibility and criteria matching logic
+        const candidates = await Promise.all(patients.map(async (patient) => {
+            const matchedCriteria = [];
+            const missingCriteria = [];
+
+            // age
+            const age = calculateAge(patient.date_of_birth);
+            if (age >= 18 && age <= 65) {
+                matchedCriteria.push(`Age: ${age}`);
+            } else {
+                missingCriteria.push(`Age: ${age}`);
+            }
+
+            // consent
+            const consent = await prisma.patient_consents.findFirst({
+                where: { patient_id: patient.id, is_accepted: true } // <-- CORREGIDO
+            });
+            if (consent) matchedCriteria.push(`Consent: ${consent.id}`);
+            else missingCriteria.push(`Consent: Not provided`);
+
+            // mock score calculation
+            let elegibilityScore = 0;
+            if (matchedCriteria.length === 2) elegibilityScore = 90;
+            else if (matchedCriteria.length === 1) elegibilityScore = 70;
+            else elegibilityScore = 40;
+
+            console.log(`[getClinicalTrialEligibleCandidates] candidate:`, {
+                patientId: patient.id,
+                medicalRecordNumber: patient.medical_record_number,
+                name: `${patient.first_name} ${patient.last_name}`,
+                age,
+                elegibilityScore,
+                matchedCriteria,
+                missingCriteria
+            });
+
+            return {
+                patientId: patient.id,
+                medicalRecordNumber: patient.medical_record_number,
+                name: `${patient.first_name} ${patient.last_name}`,
+                age,
+                elegibilityScore,
+                matchedCriteria: matchedCriteria.join(', '),
+                missingCriteria: missingCriteria.join(', ')
+            };
+        }));
+
+        // filter candidates based on minimum elegibility score
+        const filteredCandidates = minScore ? candidates.filter(candidate => candidate.elegibilityScore >= minScore) : candidates;
+
+        const totalCandidates = filteredCandidates.length;
+        const hasMore = totalCandidates > (offset + limit);
+
+        const elegibleCandidateStatus: TrialElegibleCandidateResponse = {
+            candidates: filteredCandidates.slice(0, limit),
+            totalCandidates,
+            pagination: {
+                limit,
+                offset,
+                hasMore
+            }
+        };
+
+        return elegibleCandidateStatus;
+    }
+
+
+
+    async getClinicalTrialPerformanceMetrics(groupByDto: GetKpiAcrossTrialsDto): Promise<TrialPerformanceMetricsResponse> {
+        const { startDate, endDate, groupBy } = groupByDto;
+
+        // 1. filter trials by date range
+        const trials = await prisma.clinical_trials.findMany({
+            where: {
+                start_date: { gte: new Date(startDate) },
+                end_date: { lte: new Date(endDate) }
+            }
+        });
+
+        console.log(trials);
+        // 2. group trials by the specified field
+        const groupMap = new Map<string, typeof trials>();
+        for (const trial of trials) {
+            let groupValue = '';
+            switch (groupBy) {
+                case GroupBy.Phase:
+                    groupValue = trial.phase || 'N/A';
+                    break;
+                case GroupBy.Status:
+                    groupValue = trial.status;
+                    break;
+                case GroupBy.Investigator:
+                    groupValue = trial.principal_investigator_id || 'N/A';
+                    break;
+                default:
+                    groupValue = 'all';
+            }
+            if (!groupMap.has(groupValue)) groupMap.set(groupValue, []);
+            groupMap.get(groupValue)!.push(trial);
+        }
+
+        // 3. calculate KPIs for each group
+        const metrics = [];
+        for (const [groupName, groupTrials] of groupMap.entries()) {
+            const activeTrials = groupTrials.filter(t => t.status === 'active').length;
+            // targetEnrollment does not exists
+            const currentEnrollment = groupTrials.reduce((sum, t) => sum + (t.patient_count || 0), 0);
+
+            // avgEnrollment depends of targetEnrollment
+            // avgDaysToFirstPatient, avgScreenFailureRate, avgDropoutRate 
+
+            // enrollment rate is patients per month
+            let topPerformer = null;
+            let maxRate = 0;
+            for (const t of groupTrials) {
+                if (t.start_date && t.patient_count) {
+                    const months = Math.max(1, ((t.end_date?.getTime() || Date.now()) - t.start_date.getTime()) / (1000 * 60 * 60 * 24 * 30));
+                    const rate = t.patient_count / months;
+                    if (rate > maxRate) {
+                        maxRate = rate;
+                        topPerformer = {
+                            trialId: t.trial_identifier,
+                            enrollmentRate: Number(rate.toFixed(2))
+                        };
+                    }
+                }
+            }
+            console.log(topPerformer);
+            metrics.push({
+                groupName,
+                groupValue: groupBy,
+                kpis: {
+                    activeTrials,
+                    currentEnrollment
+                },
+                //topPerformer
+            });
+        }
+
+        // 4. global kpis
+        const totalActiveTrials = trials.filter(t => t.status === 'active').length;
+        // globalEnrollmentRate: 
+        let totalEnrollment = 0;
+        let totalMonths = 0;
+        for (const t of trials) {
+            if (t.start_date && t.patient_count) {
+                const months = Math.max(1, ((t.end_date?.getTime() || Date.now()) - t.start_date.getTime()) / (1000 * 60 * 60 * 24 * 30));
+                totalEnrollment += t.patient_count;
+                totalMonths += months;
+            }
+        }
+        const globalEnrollmentRate = totalMonths > 0 ? Number((totalEnrollment / totalMonths).toFixed(2)) : 0;
+
+        // projectedTrialsOnTime y projectedTrialsDelayed cannot calculate without more data
+
+        const overallMetrics = {
+            totalActiveTrials,
+            globalEnrollmentRate,
+        };
+
+        return {
+            metrics,
+            overallMetrics,
+            period: {
+                start: startDate,
+                end: endDate
+            }
+        };
+    }
+}
+
+function calculateAge(dateOfBirth: Date): number {
+    const today = new Date();
+    const dob = new Date(dateOfBirth);
+    let age = today.getFullYear() - dob.getFullYear();
+    const m = today.getMonth() - dob.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--;
+    return age;
 }

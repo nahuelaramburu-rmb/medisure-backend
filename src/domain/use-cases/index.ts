@@ -17,6 +17,9 @@ export * from './clinical-trials/create-clinical.trial';
 export * from './clinical-trials/update-clinical.trial';
 export * from './clinical-trials/delete-clinical.trial';
 export * from './clinical-trials/dashboard-kpis/get-clinical.trial.sumary';
+export * from './clinical-trials/dashboard-kpis/get-clinical.trial.enrollment.status';
+export * from './clinical-trials/dashboard-kpis/get-clinical.trial.elegible.candidates';
+export * from './clinical-trials/dashboard-kpis/get-clinical.trial.performance.metrics';
 
 export * from './patients/get-patients';
 export * from './patients/get-patient';

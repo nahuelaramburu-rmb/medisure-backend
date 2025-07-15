@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import {  CreateRole, CreateRoleDto, CustomError, DeleteRole, GetRoleById, GetRoles, RoleRepository, UpdateRole } from "../../domain";
 import { UpdateRoleDto } from '../../domain/dtos/roles/update-role.dto';
+import { handleError } from "../helpers/errors";
 
 
 export class RoleController{
@@ -21,13 +22,7 @@ export class RoleController{
                     data
                 });
             })
-            .catch((error) => {
-                if (error instanceof CustomError) {
-                    return res.status(error.statusCode).json({ error: error.message });
-                }
-                console.error(error);
-                return res.status(500).json({ error: 'Internal Server Error' });
-            })
+            .catch((error) => handleError(error, res));
     }
 
     createRole = async (req: Request , res: Response)=>{
@@ -42,13 +37,7 @@ export class RoleController{
                     data
                 });
             })
-            .catch((error) => {
-                if (error instanceof CustomError) {
-                    return res.status(error.statusCode).json({ error: error.message });
-                }
-                console.error(error);
-                return res.status(500).json({ error: 'Internal Server Error' });
-            })
+            .catch((error) => handleError(error, res));
     }
 
     getRoles = async(req: Request, res: Response) => {
@@ -61,13 +50,7 @@ export class RoleController{
                     data
                 });
             })
-            .catch((error) => {
-                if (error instanceof CustomError) {
-                    return res.status(error.statusCode).json({ error: error.message });
-                }
-                console.error(error);
-                return res.status(500).json({ error: 'Internal Server Error' });
-            })
+            .catch((error) => handleError(error, res));
     }
 
     getRoleById = (req: Request, res: Response) => {
@@ -80,13 +63,7 @@ export class RoleController{
                     data
                 });
             })
-            .catch((error) => {
-                if (error instanceof CustomError) {
-                    return res.status(error.statusCode).json({ error: error.message });
-                }
-                console.error(error);
-                return res.status(500).json({ error: 'Internal Server Error' });
-            })
+            .catch((error) => handleError(error, res));
         }
 
     deleteRole = async (req:Request, res: Response)=>{
@@ -100,12 +77,6 @@ export class RoleController{
                     data
                 });
             })
-            .catch((error) => {
-                if (error instanceof CustomError) {
-                    return res.status(error.statusCode).json({ error: error.message });
-                }
-                console.error(error);
-                return res.status(500).json({ error: 'Internal Server Error' });
-            })
+            .catch((error) => handleError(error, res));
     }
 }

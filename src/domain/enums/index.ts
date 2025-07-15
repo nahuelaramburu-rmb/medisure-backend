@@ -83,3 +83,10 @@ export enum SeverityLevel {
     Moderate = 'moderate',
     Severe = 'severe'
 }
+
+export enum GroupBy{
+    Department = 'department',
+    Phase = 'phase',    
+    Status = 'status',
+    Investigator = 'investigator',
+}

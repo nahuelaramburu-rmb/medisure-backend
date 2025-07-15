@@ -1,17 +1,17 @@
-import { TrialEnrollmentStatusResponse } from "../../../dtos";
+import { TrialEnrollmentResponse } from "../../../dtos";
 import { ClinicalTrialRepository } from "../../../repositories/clinical-trial.repository";
 
 
 
 interface ClinicalTrialUseCase{
-    execute(): Promise<TrialEnrollmentStatusResponse>;
+    execute(): Promise<TrialEnrollmentResponse>;
 }
 
 export class GetClinicalTrialSummary implements ClinicalTrialUseCase {
     constructor(
         private readonly repository: ClinicalTrialRepository
     ){}
-    async execute(): Promise<TrialEnrollmentStatusResponse> {
+    async execute(): Promise<TrialEnrollmentResponse> {
         return this.repository.getClinicalTrialSummary();
     }
 }

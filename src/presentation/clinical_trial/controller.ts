@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { ClinicalTrialRepository, GetClinicalTrials, GetClinicalTrialSummary, UpdateClinicalTrialDto } from "../../domain";
+import { ClinicalTrialRepository, GetClinicalTrialElegibleCandidates, GetClinicalTrialEnrollmentStatus, GetClinicalTrialPerformanceMetrics, GetClinicalTrials, GetClinicalTrialSummary, GetKpiAcrossTrialsDto, PaginationDto, UpdateClinicalTrialDto } from "../../domain";
 import { CreateClinicalTrial } from "../../domain/use-cases/clinical-trials/create-clinical.trial";
 import { CreateClinicalTrialDto } from '../../domain/dtos/clinicalTrial/create-clinical.trial-dto';
 import { GetClinicalTrial } from "../../domain/use-cases/clinical-trials/get-clinical.trial";
@@ -9,6 +9,7 @@ import { handleError } from "../helpers/errors";
 
 
 export class ClinicalTrialController {
+    
     constructor(
         private readonly clinicalTrialRepository: ClinicalTrialRepository
     ){}
@@ -22,9 +23,7 @@ export class ClinicalTrialController {
                 data    
             });
         })
-        .catch((error) => {
-            console.error(error);
-        })
+        .catch((error) => handleError(error, res));
     }
 
     getTrialById = async (req: Request, res: Response) =>{
@@ -38,13 +37,7 @@ export class ClinicalTrialController {
                 data
             });
         })
-        .catch((error) => {
-            if (error instanceof Error) {
-                return res.status(404).json({ error: error.message });
-            }
-            console.error(error);
-            return res.status(500).json({ error: 'Internal Server Error' });
-        });
+        .catch((error) => handleError(error, res));
     }
     
     createClinicalTrial= async (req: Request, res: Response) =>  {
@@ -58,10 +51,7 @@ export class ClinicalTrialController {
                 data
             });
         })
-        .catch((error) => {
-            console.error(error);
-            return res.status(500).json({ error: 'Internal Server Error' });
-        });
+        .catch((error) => handleError(error, res));
     }
 
     updateClinicalTrial = async (req: Request, res: Response)=>{
@@ -76,13 +66,7 @@ export class ClinicalTrialController {
                     data
                 })
             })
-            .catch((error) => {
-                if (error instanceof Error) {
-                    return res.status(404).json({ error: error.message });
-                }
-                console.error(error);
-                return res.status(500).json({ error: 'Internal Server Error' });
-            }
+            .catch((error) => handleError(error, res)
         )
     }
 
@@ -99,13 +83,7 @@ export class ClinicalTrialController {
                     data
                 });
             })
-            .catch((error) => {
-                if (error instanceof Error) {
-                    return res.status(404).json({ error: error.message });
-                }
-                console.error(error);
-                return res.status(500).json({ error: 'Internal Server Error' });
-            });
+            .catch((error) => handleError(error, res));
     }
     getClinicalTrialSumary = (req: Request, res: Response) => {
         new GetClinicalTrialSummary(this.clinicalTrialRepository)
@@ -113,5 +91,39 @@ export class ClinicalTrialController {
             .then( data => {res.json( data )})
             .catch( error => handleError(error, res) );
 
+    }
+
+    getClinicalTrialEnrollmentStatus = (req: Request, res: Response) => {
+        const id = req.params.id;
+        new GetClinicalTrialEnrollmentStatus(this.clinicalTrialRepository)
+            .execute(id)
+            .then( data => { res.json(data) })
+            .catch( error => handleError(error, res) );
+    }
+
+    getElegibleCandidates = (req: Request, res: Response)=>{
+        const id = req.params.id;
+        const minScore = req.query.minScore ? +req.query.minScore : 0;
+
+        const { page=1, limit=10} = req.query;
+        const [error, paginationDto] = PaginationDto.create(+page,+limit);
+        if (error) return res.status(400).json({ error });
+
+        new GetClinicalTrialElegibleCandidates(this.clinicalTrialRepository)
+            .execute(id, paginationDto!, minScore)
+            .then( data => { res.json(data)})
+            .catch( error => handleError(error, res) );
+    }
+    getClinicalTrialPerformanceMetrics = (req: Request, res: Response) =>{
+        
+        const [error, groupByValue] = GetKpiAcrossTrialsDto.create(req.query);
+        if (error) return res.status(400).json({ error });
+
+        new GetClinicalTrialPerformanceMetrics(this.clinicalTrialRepository)
+            .execute(groupByValue!)
+            .then(data => {
+                res.json(data);
+            })
+            .catch(error => handleError(error, res));
     }
 }

@@ -1,4 +1,4 @@
-import { CreateClinicalTrialDto, TrialEnrollmentStatusResponse, UpdateClinicalTrialDto } from "../dtos";
+import { CreateClinicalTrialDto, GetKpiAcrossTrialsDto, PaginationDto, TrialElegibleCandidateResponse, TrialEnrollmentResponse, TrialEnrollmentStatusResponse, TrialPerformanceMetricsResponse, UpdateClinicalTrialDto } from "../dtos";
 import { ClinicalTrialEntity } from "../entities/clinical-trial.entity";
 
 
@@ -8,5 +8,9 @@ export abstract class ClinicalTrialRepository{
     abstract getById(id: string): Promise<ClinicalTrialEntity>;
     abstract updateById(updateClinicalTrialDto: UpdateClinicalTrialDto): Promise<ClinicalTrialEntity>;
     abstract deleteById(id: string): Promise<ClinicalTrialEntity>;
-    abstract getClinicalTrialSummary(): Promise<TrialEnrollmentStatusResponse>;
+
+    abstract getClinicalTrialSummary(): Promise<TrialEnrollmentResponse>;
+    abstract getClinicalTrialEnrollmentStatus(id: string): Promise<TrialEnrollmentStatusResponse>;
+    abstract getClinicalTrialEligibleCandidates(id: string, paginationDto: PaginationDto, minScore?:number): Promise<TrialElegibleCandidateResponse>;
+    abstract getClinicalTrialPerformanceMetrics(groupBy: GetKpiAcrossTrialsDto): Promise<TrialPerformanceMetricsResponse>;
 }

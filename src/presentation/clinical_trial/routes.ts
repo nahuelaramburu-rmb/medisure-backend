@@ -14,6 +14,16 @@ export class ClinicalTrialRoutes {
         
         router.get('/summary', clinicalTrialController.getClinicalTrialSumary);
 
+        router.get('/:id/enrollment-status', clinicalTrialController.getClinicalTrialEnrollmentStatus);
+
+        router.get('/:id/elegible-candidates', (req, res) => {
+            clinicalTrialController.getElegibleCandidates(req, res);
+        });
+
+        router.get('/performance-metrics', (req, res) => {
+            clinicalTrialController.getClinicalTrialPerformanceMetrics(req,res)
+        });
+
         router.get('/', (req, res) => {
             clinicalTrialController.getAllClinicalTrials(req, res);
         });
