@@ -1,4 +1,4 @@
-import { ClinicalTrialRepository, CreateClinicalTrialDto, UpdateClinicalTrialDto } from "../../domain";
+import { ClinicalTrialRepository, CreateClinicalTrialDto, TrialEnrollmentStatusResponse, UpdateClinicalTrialDto } from "../../domain";
 import { ClinicalTrialDataSource } from "../../domain/datasources/clinical-trial.datasource";
 import { ClinicalTrialEntity } from "../../domain/entities/clinical-trial.entity";
 
@@ -25,5 +25,8 @@ export class ClinicalTrialRepositoryImpl implements ClinicalTrialRepository {
 
     deleteById(id: string): Promise<ClinicalTrialEntity> {
         return this.dataSource.deleteById(id);
+    }
+    getClinicalTrialSummary(): Promise<TrialEnrollmentStatusResponse> {
+        return this.dataSource.getClinicalTrialSumary();
     }
 }

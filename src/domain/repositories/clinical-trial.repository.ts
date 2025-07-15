@@ -1,4 +1,4 @@
-import { CreateClinicalTrialDto, UpdateClinicalTrialDto } from "../dtos";
+import { CreateClinicalTrialDto, TrialEnrollmentStatusResponse, UpdateClinicalTrialDto } from "../dtos";
 import { ClinicalTrialEntity } from "../entities/clinical-trial.entity";
 
 
@@ -8,4 +8,5 @@ export abstract class ClinicalTrialRepository{
     abstract getById(id: string): Promise<ClinicalTrialEntity>;
     abstract updateById(updateClinicalTrialDto: UpdateClinicalTrialDto): Promise<ClinicalTrialEntity>;
     abstract deleteById(id: string): Promise<ClinicalTrialEntity>;
+    abstract getClinicalTrialSummary(): Promise<TrialEnrollmentStatusResponse>;
 }

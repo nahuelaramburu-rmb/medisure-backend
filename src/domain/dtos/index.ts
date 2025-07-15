@@ -10,6 +10,7 @@ export * from './auth/register-user.dto';
 
 export * from './clinicalTrial/create-clinical.trial-dto'
 export * from './clinicalTrial/update-clinical.trial-dto';
+export * from './clinicalTrial/responses-format/trial.enrollment.status.response ';
 
 export * from './chat/create-room.dto';
 export * from './chat/create-chat.messages.dto';

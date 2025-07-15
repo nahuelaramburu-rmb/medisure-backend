@@ -1,5 +1,5 @@
 import { prisma } from "../../data/postgres";
-import { CreateClinicalTrialDto, CustomError, UpdateClinicalTrialDto} from "../../domain";
+import { CreateClinicalTrialDto, CustomError, TrialEnrollmentStatusResponse, TrialStatusBreakdown, UpdateClinicalTrialDto} from "../../domain";
 import { ClinicalTrialDataSource } from "../../domain/datasources/clinical-trial.datasource";
 import { ClinicalTrialEntity } from "../../domain/entities/clinical-trial.entity";
 import { clinical_trials } from '../../generated/prisma/index';
@@ -46,4 +46,43 @@ export class ClinicalTrialDataSourceImpl implements ClinicalTrialDataSource{
         return ClinicalTrialEntity.fromObject(deletedClinicalTrial);
     }
 
+    async getClinicalTrialSumary(): Promise<TrialEnrollmentStatusResponse> {
+        const total_clinical_trials = await prisma.clinical_trials.count();
+
+        const status_breakdown_raw = await prisma.clinical_trials.groupBy({
+            by: ['status'],
+            _count: {status: true},
+        });
+        const status_breakdown: Record<string, number> = {
+            active: 0,
+            completed: 0,
+            suspended: 0,
+            terminated: 0,
+            planning: 0
+        };
+        status_breakdown_raw.forEach(item => {
+            status_breakdown[item.status] = item._count.status;
+        });
+
+        const total_patints_enrolled_agg = await prisma.clinical_trials.aggregate({
+            _sum: { patient_count: true }
+        });
+        
+        const total_patients_enrolled = total_patints_enrolled_agg._sum.patient_count || 0;
+
+        const summary: TrialEnrollmentStatusResponse = {
+            total_trials: total_clinical_trials,
+            status_breakdown: {
+                active: status_breakdown.active,
+                completed: status_breakdown.completed,
+                suspended: status_breakdown.suspended,
+                terminated: status_breakdown.terminated,
+                planning: status_breakdown.planning
+            },
+            total_patients_enrolled
+        };
+        
+        return summary;
+
+    }
 }

@@ -11,6 +11,8 @@ export class ClinicalTrialRoutes {
         const dataSource = new ClinicalTrialDataSourceImpl();
         const clinicalTrialRepository = new ClinicalTrialRepositoryImpl(dataSource);
         const clinicalTrialController = new ClinicalTrialController(clinicalTrialRepository);
+        
+        router.get('/summary', clinicalTrialController.getClinicalTrialSumary);
 
         router.get('/', (req, res) => {
             clinicalTrialController.getAllClinicalTrials(req, res);

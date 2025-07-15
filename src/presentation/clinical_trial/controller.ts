@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
-import { ClinicalTrialRepository, GetClinicalTrials, UpdateClinicalTrialDto } from "../../domain";
+import { ClinicalTrialRepository, GetClinicalTrials, GetClinicalTrialSummary, UpdateClinicalTrialDto } from "../../domain";
 import { CreateClinicalTrial } from "../../domain/use-cases/clinical-trials/create-clinical.trial";
 import { CreateClinicalTrialDto } from '../../domain/dtos/clinicalTrial/create-clinical.trial-dto';
 import { GetClinicalTrial } from "../../domain/use-cases/clinical-trials/get-clinical.trial";
 import { UpdateClinicalTrial } from "../../domain/use-cases/clinical-trials/update-clinical.trial";
+import { handleError } from "../helpers/errors";
 
 
 
@@ -105,5 +106,12 @@ export class ClinicalTrialController {
                 console.error(error);
                 return res.status(500).json({ error: 'Internal Server Error' });
             });
+    }
+    getClinicalTrialSumary = (req: Request, res: Response) => {
+        new GetClinicalTrialSummary(this.clinicalTrialRepository)
+            .execute()
+            .then( data => {res.json( data )})
+            .catch( error => handleError(error, res) );
+
     }
 }
