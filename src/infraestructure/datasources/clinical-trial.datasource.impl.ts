@@ -1,11 +1,11 @@
-
 import { prisma } from "../../data/postgres";
-import { CreateClinicalTrialDto, CustomError, GetKpiAcrossTrialsDto, GroupBy, PaginationDto, TrialElegibleCandidateResponse, TrialEnrollmentResponse, TrialEnrollmentStatusResponse, TrialStatusBreakdown, UpdateClinicalTrialDto } from "../../domain";
+import { CreateClinicalTrialDto, CustomError, EnrollPatientDto, GetKpiAcrossTrialsDto, GroupBy, PaginationDto, TrialElegibleCandidateResponse, TrialEnrollmentResponse, TrialEnrollmentStatusResponse, TrialStatusBreakdown, UpdateClinicalTrialDto } from "../../domain";
 import { ClinicalTrialDataSource } from "../../domain/datasources/clinical-trial.datasource";
 import { ClinicalTrialEntity } from "../../domain/entities/clinical-trial.entity";
 
 import { TrialPerformanceMetricsResponse } from '../../domain/dtos/clinicalTrial/responses-format/trial.enrollment.status.response ';
 import { handleError } from "../../presentation/helpers/errors";
+import { ValidActions } from "../../domain/enums/index";
 
 
 export class ClinicalTrialDataSourceImpl implements ClinicalTrialDataSource {
@@ -297,6 +297,104 @@ export class ClinicalTrialDataSourceImpl implements ClinicalTrialDataSource {
                 start: startDate,
                 end: endDate
             }
+        };
+    }
+    async enrollPatientInTrial(enrollPatientDto: EnrollPatientDto, trialId: string): Promise<any> {
+        const { cohortId, patientId, action, notes, enrollmentDate, assignedCoordinator } = enrollPatientDto;
+
+        
+        const clinicalTrial = await this.getById(trialId);
+        const patient = await prisma.patients.findUnique({ where: { id: patientId } });
+        if (!patient) throw new CustomError(404, `Patient not found ${patientId}`);
+
+        //Search previous enrollment
+        const cohort = await prisma.cohorts.findUnique({ where: { id: cohortId } });
+        if (!cohort) throw new CustomError(404, `Cohort not found ${cohortId}`);
+
+        const activeEnrollment = await prisma.cohort_patients.findFirst({
+            where: { cohort_id: cohortId, patient_id: patientId, removed_at: null }
+        });
+
+        let newStatus = '';
+        let enrollmentId = '';
+        let trialEnrollmentCount = clinicalTrial.patient_count;
+
+        switch (action) {
+            case ValidActions.Enroll:
+                if (activeEnrollment) throw new CustomError(400, 'Patient already enrolled');
+                const enrollment = await prisma.cohort_patients.create({
+                    data: {
+                        cohort_id: cohortId,
+                        patient_id: patientId,
+                        added_by_user_id: assignedCoordinator,
+                        notes,
+                        added_at: enrollmentDate ? new Date(enrollmentDate) : new Date(),
+                        removed_at: null
+                    }
+                });
+                newStatus = 'enrolled';
+                enrollmentId = enrollment.id;
+                await prisma.clinical_trials.update({
+                    where: { id: trialId },
+                    data: { patient_count: { increment: 1 } }
+                });
+                trialEnrollmentCount += 1;
+
+                break;
+
+            case ValidActions.Withdraw:
+                if (!activeEnrollment) throw new CustomError(400, 'Patient not enrolled');
+                await prisma.cohort_patients.update({
+                    where: { id: activeEnrollment.id },
+                    data: { removed_at: new Date(), notes }
+                });
+                newStatus = 'withdrawn';
+                enrollmentId = activeEnrollment.id;
+                await prisma.clinical_trials.update({
+                    where: { id: trialId },
+                    data: { patient_count: { decrement: 1 } }
+                });
+                trialEnrollmentCount = Math.max(0, trialEnrollmentCount - 1);
+                break;
+
+            // Las siguientes acciones requieren un campo status o una tabla adicional
+            case ValidActions.Screen:
+            case ValidActions.Complete:
+            case ValidActions.FailScreening:
+                throw new CustomError(400, `Action ${action} not supported with current cohort_patients schema`);
+            default:
+                throw new CustomError(400, `Invalid action: ${action}`);
+        }
+
+        // Audit log
+        try{
+            await prisma.audit_logs?.create?.({
+                data: {
+                    user_id: assignedCoordinator,
+                    action,
+                    entity_type: 'cohort_patients',
+                    entity_id: enrollmentId,
+                    
+                    
+                }
+            });
+        } catch (error) {
+            console.error('Error creating audit log:', error);
+            throw new CustomError(500, 'Failed to create audit log');
+        }
+
+        // Simular notificación
+        const notification = {
+            sent: true,
+            recipients: ['coordinator']
+        };
+
+        return {
+            success: true,
+            enrollmentId,
+            newStatus,
+            trialEnrollmentCount,
+            notification
         };
     }
 }

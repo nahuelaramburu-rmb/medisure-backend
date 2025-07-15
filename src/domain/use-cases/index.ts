@@ -20,6 +20,7 @@ export * from './clinical-trials/dashboard-kpis/get-clinical.trial.sumary';
 export * from './clinical-trials/dashboard-kpis/get-clinical.trial.enrollment.status';
 export * from './clinical-trials/dashboard-kpis/get-clinical.trial.elegible.candidates';
 export * from './clinical-trials/dashboard-kpis/get-clinical.trial.performance.metrics';
+export * from './clinical-trials/enroll-patient.in.trial';
 
 export * from './patients/get-patients';
 export * from './patients/get-patient';

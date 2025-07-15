@@ -4,6 +4,7 @@ import { CustomError } from '../../domain';
 
 export function handleError(error: any, res: Response) {
     if (error.code === 'P2003'){
+        console.log(error)
         return res.status(400).json({
             error: 'Foreign key constraint violated on the constraint',
             details: error.meta?.cause
@@ -11,6 +12,7 @@ export function handleError(error: any, res: Response) {
     }
     if (error.code === 'P2002') {
         // Unique constraint failed
+        console.log(error);
         return res.status(409).json({
             error: "Unique constraint failed. Duplicate value.",
             details: error.meta

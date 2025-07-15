@@ -1,4 +1,4 @@
-import { ClinicalTrialRepository, CreateClinicalTrialDto, GetKpiAcrossTrialsDto, PaginationDto, TrialElegibleCandidateResponse, TrialEnrollmentResponse, TrialEnrollmentStatusResponse, TrialPerformanceMetricsResponse, UpdateClinicalTrialDto } from "../../domain";
+import { ClinicalTrialRepository, CreateClinicalTrialDto, EnrollPatientDto, GetKpiAcrossTrialsDto, PaginationDto, TrialElegibleCandidateResponse, TrialEnrollmentResponse, TrialEnrollmentStatusResponse, TrialPerformanceMetricsResponse, UpdateClinicalTrialDto } from "../../domain";
 import { ClinicalTrialDataSource } from "../../domain/datasources/clinical-trial.datasource";
 import { ClinicalTrialEntity } from "../../domain/entities/clinical-trial.entity";
 
@@ -37,5 +37,8 @@ export class ClinicalTrialRepositoryImpl implements ClinicalTrialRepository {
     }
     getClinicalTrialPerformanceMetrics(groupBy: GetKpiAcrossTrialsDto): Promise<TrialPerformanceMetricsResponse> {
         return this.dataSource.getClinicalTrialPerformanceMetrics(groupBy);
+    }
+    enrollPatientInTrial(enrollPatientDto: EnrollPatientDto, id: string): Promise<any> {
+        return this.dataSource.enrollPatientInTrial(enrollPatientDto, id);
     }
 }

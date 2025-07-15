@@ -90,3 +90,11 @@ export enum GroupBy{
     Status = 'status',
     Investigator = 'investigator',
 }
+
+export enum ValidActions{
+    Screen = 'screen',
+    Enroll = 'enroll',
+    Withdraw = 'withdraw',
+    Complete = 'complete',
+    FailScreening = 'fail_screening',
+}

@@ -24,6 +24,10 @@ export class ClinicalTrialRoutes {
             clinicalTrialController.getClinicalTrialPerformanceMetrics(req,res)
         });
 
+        router.post('/:id/enrollment', (req, res) => {
+            clinicalTrialController.enrollPatientInTrial(req, res);
+        });
+        
         router.get('/', (req, res) => {
             clinicalTrialController.getAllClinicalTrials(req, res);
         });
