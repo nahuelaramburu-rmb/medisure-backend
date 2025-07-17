@@ -12,6 +12,8 @@ export * from './repositories/log.repository.impl';
 export * from './repositories/patient-consent.repository.impl';
 export * from './repositories/chat.repository.impl';
 export * from './repositories/user.repository.impl';
+export * from './repositories/cohort-patient.repository.impl';
+export * from './repositories/user.repository.impl';
 
 export * from './datasources/auth.prisma.datasource';
 export * from './datasources/clinical-trial.datasource.impl';
@@ -25,4 +27,6 @@ export * from './datasources/audit-log.datasource.impl';
 export * from './datasources/audit-log.datasource.impl';
 export * from './datasources/patient-consent.datasource.impl';
 export * from './datasources/chat.datasource.impl';
+export * from './datasources/user.datasource.impl';
+export * from './datasources/cohort-patient.datasource.impl';
 export * from './datasources/user.datasource.impl';

@@ -1,11 +1,14 @@
-import { CreateDocumentDto, DocumentRepository, UpdateDocumentDto } from "../../domain";
-import { GetDocuments } from '../../domain/use-cases/documents/get-documents';
+import { 
+    CreateDocument, 
+    CreateDocumentDto, 
+    DeleteDocument, 
+    DocumentRepository, 
+    GetDocumentById, 
+    GetDocuments, 
+    UpdateDocument, 
+    UpdateDocumentDto } from "../../domain";
 import { Request, Response } from "express";
 import { handleError } from "../helpers/errors";
-import { GetDocumentById } from '../../domain/use-cases/documents/get-document';
-import { CreateDocument } from '../../domain/use-cases/documents/create-document';
-import { UpdateDocument } from '../../domain/use-cases/documents/update-document';
-import { DeleteDocument } from '../../domain/use-cases/documents/delete-document';
 
 export class DocumentController{
     constructor(

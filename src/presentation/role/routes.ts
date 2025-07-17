@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { RoleDataSourceImp } from "../../infraestructure/datasources/role.datasource.impl";
-import { RoleRepositoryImpl } from "../../infraestructure/repositories/role.repository.impl";
 import { RoleController } from "./controller";
+import { RoleDataSourceImp, RoleRepositoryImpl } from "../../infraestructure";
+import { AuthMiddleware } from "../middlewares/auth.middleware";
 
 
 
@@ -13,6 +13,7 @@ export class RoleRoutes {
         const roleRepository = new RoleRepositoryImpl(datasource);
         const roleController = new RoleController(roleRepository);
         
+        //router.use(AuthMiddleware.validateJWT);
         router.get('/:id', (req, res) => {
             roleController.getRoleById(req, res);
         });

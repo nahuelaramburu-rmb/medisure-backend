@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { CohortRepositoryImpl } from "../../infraestructure/repositories/cohort.repository.impl";
-import { CohortDatasourceImpl } from "../../infraestructure/datasources/cohort.datasource.impl";
 import { CohortController } from "./controller";
+import { CohortDatasourceImpl, CohortRepositoryImpl } from "../../infraestructure";
+import { AuthMiddleware } from "../middlewares/auth.middleware";
 
 
 export class CohortRouter{
@@ -11,6 +11,7 @@ export class CohortRouter{
         const repository = new CohortRepositoryImpl(datasource);
         const cohortController = new CohortController(repository);
 
+        router.use(AuthMiddleware.validateJWT);
         router.get('/', cohortController.getCohorts);
         router.get('/:id', cohortController.getCohortById);
         router.post('/create', (req, res) => {

@@ -1,8 +1,7 @@
 import { Router } from "express";
-import { CohortPatientDataSource } from "../../domain/datasources/patient-cohort.datasource";
-import { CohortPatientDataSourceImpl } from '../../infraestructure/datasources/cohort-patient.datasource.impl';
-import { CohortPatientRepositoryImpl } from '../../infraestructure/repositories/cohort-patient.repository.impl';
 import { CohortPatientController } from "./controller";
+import { CohortPatientDataSourceImpl, CohortPatientRepositoryImpl } from "../../infraestructure";
+import { AuthMiddleware } from "../middlewares/auth.middleware";
 
 
 export class CohortPatientRouter{
@@ -11,6 +10,8 @@ export class CohortPatientRouter{
         const datasource = new CohortPatientDataSourceImpl();
         const repository = new CohortPatientRepositoryImpl(datasource);
         const cohortPatientController = new CohortPatientController(repository);
+
+        router.use(AuthMiddleware.validateJWT);
         router.post('/:cohortId/patients',(req, res) => {
             cohortPatientController.addPatient(req, res);
         });

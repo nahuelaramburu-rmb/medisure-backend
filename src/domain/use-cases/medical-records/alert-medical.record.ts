@@ -20,14 +20,14 @@ export class CheckMedicalRecordAlert implements CheckMedicalRecordAlertUseCase {
             const recentRecords = await this.getRecentCriticalRecords();
             let processedCount = 0;
             for (const record of recentRecords) {
-                // Verificar si ya se procesó (usando logs como control)
+                
                 const alreadyProcessed = await this.isAlreadyProcessed(record.id);
                 
                 if (!alreadyProcessed) {
                     const severity = this.extractSeverity(record.data);
                     
                     if (severity && (severity === 'moderate' || severity === 'severe')) {
-                        // Crear log de alerta
+                        
                         const logMessage = this.buildAlertMessage(record, severity);
                         const logEntity = new LogMedicalRecordEntity(
                             record.id,

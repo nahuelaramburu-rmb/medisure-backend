@@ -1,5 +1,5 @@
 import { prisma } from "../../data/postgres";
-import { UserDatasource, UserEntity } from "../../domain";
+import { CustomError, UserDatasource, UserEntity } from "../../domain";
 import { UserMapper } from "../mappers/user.mappers";
 
 export class UserDatasourceImpl  implements UserDatasource{
@@ -9,10 +9,11 @@ export class UserDatasourceImpl  implements UserDatasource{
         }
     
     async getUserByUserName(user_name: string): Promise<UserEntity> {
+        if (!user_name) throw new CustomError(400, "User name is required");
         const user = await prisma.users.findUnique({
-            where: { user_name}
+            where: { user_name: user_name }
         })
-        if (!user) throw new Error('User not found');
+        if (!user) throw new CustomError(404, "User not found");
         return UserMapper.UserEntityFromObject(user);
     }
     

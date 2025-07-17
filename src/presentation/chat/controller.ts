@@ -19,7 +19,6 @@ export class ChatController{
         if (!req.user) return res.status(401).json({ error: "Unauthorized: user not found in request" });
         
         const { id } = req.user;
-        console.log(id);
 
         new CreateRoom(this.repository)
             .execute(createRoomDto!, id)
@@ -31,27 +30,7 @@ export class ChatController{
             })
             .catch( error => handleError(error, res) );
     }
-    getMentionsByUser(arg0: string, getMentionsByUser: any) {
-        throw new Error("Method not implemented.");
-    }
-    getMessageById(arg0: string, getMessageById: any) {
-        throw new Error("Method not implemented.");
-    }
-    getMessagesByRoom(arg0: string, getMessagesByRoom: any) {
-        throw new Error("Method not implemented.");
-    }
-    sendMessage(arg0: string, sendMessage: any) {
-        throw new Error("Method not implemented.");
-    }
-    getMembersByRoom(arg0: string, getMembersByRoom: any) {
-        throw new Error("Method not implemented.");
-    }
-    addMemberToRoom(arg0: string, addMemberToRoom: any) {
-        throw new Error("Method not implemented.");
-    }
-    getRoomById(arg0: string, getRoomById: any) {
-        throw new Error("Method not implemented.");
-    }
+    
     getAllRooms = async (req: Request, res: Response) => {
         new GetAllRooms(this.repository)
             .execute()

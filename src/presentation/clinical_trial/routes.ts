@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { ClinicalTrialDataSourceImpl } from '../../infraestructure/datasources/clinical-trial.datasource.impl';
-import { ClinicalTrialRepositoryImpl } from '../../infraestructure/repositories/clinical-trial.repository.impl';
 import { ClinicalTrialController } from "./controller";
+import { AuthMiddleware } from "../middlewares/auth.middleware";
+import { ClinicalTrialDataSourceImpl, ClinicalTrialRepositoryImpl } from "../../infraestructure";
 
 
 
@@ -12,6 +12,8 @@ export class ClinicalTrialRoutes {
         const clinicalTrialRepository = new ClinicalTrialRepositoryImpl(dataSource);
         const clinicalTrialController = new ClinicalTrialController(clinicalTrialRepository);
         
+        router.use(AuthMiddleware.validateJWT);
+
         router.get('/summary', clinicalTrialController.getClinicalTrialSumary);
 
         router.get('/:id/enrollment-status', clinicalTrialController.getClinicalTrialEnrollmentStatus);

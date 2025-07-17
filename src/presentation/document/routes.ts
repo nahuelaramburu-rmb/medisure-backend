@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { DocumentDataSourceImpl } from "../../infraestructure/datasources/document.datasource.impl";
-import { DocumentRepositoryImpl } from "../../infraestructure/repositories/document.repository.impl";
 import { DocumentController } from "./controller";
+import { DocumentDataSourceImpl, DocumentRepositoryImpl } from "../../infraestructure";
+import { AuthMiddleware } from "../middlewares/auth.middleware";
 
 
 
@@ -13,6 +13,8 @@ export class DocumentRoutes {
         const repository = new DocumentRepositoryImpl(datasource);
         const documentController = new DocumentController (repository);
 
+        router.use(AuthMiddleware.validateJWT);
+        
         router.get('/', documentController.GetDocuments);
         router.get('/:id', documentController.GetDocumentById);
         router.post('/create', (req, res)=>{

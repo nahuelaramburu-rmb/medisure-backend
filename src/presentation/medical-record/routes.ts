@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { MedicalRecordDataSourceImpl } from '../../infraestructure/datasources/medical-record.datasource.impl';
-import { MedicalRecordRepositoryImpl } from "../../infraestructure/repositories/medical-record.repository.impl";
 import { MedicalRecordController } from "./controller";
+import { MedicalRecordDataSourceImpl, MedicalRecordRepositoryImpl } from "../../infraestructure";
+import { AuthMiddleware } from "../middlewares/auth.middleware";
 
 
 export class MedicalRecordRoutes {
@@ -11,6 +11,7 @@ export class MedicalRecordRoutes {
         const medicalRecordRepository = new MedicalRecordRepositoryImpl(datasource);
         const medicalRecordController = new MedicalRecordController (medicalRecordRepository);
 
+        router.use(AuthMiddleware.validateJWT);
         router.get('/', medicalRecordController.getMedicalRecords);
         router.get('/:id', medicalRecordController.getMedicalRecordById);
         router.post('/create', (req, res)=>{

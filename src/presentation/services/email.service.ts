@@ -37,7 +37,7 @@ export class EmailService {
 
     const { to, subject, htmlBody, attachements = [] } = options;
 
-
+    
     try {
       if( !this.postToProvider) return true;
       const sentInformation = await this.transporter.sendMail({

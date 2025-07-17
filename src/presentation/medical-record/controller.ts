@@ -1,4 +1,11 @@
-import { CreateMedicalRecord, CreateMedicalRecordDto, GetMedicalRecordById, GetMedicalRecords, MedicalRecordRepository, UpdateMedicalRecord, UpdateMedicalRecordDto } from "../../domain";
+import { 
+        CreateMedicalRecord, 
+        CreateMedicalRecordDto, 
+        GetMedicalRecordById, 
+        GetMedicalRecords, 
+        MedicalRecordRepository, 
+        UpdateMedicalRecord, 
+        UpdateMedicalRecordDto } from "../../domain";
 import { Request, Response } from "express";
 import { handleError } from "../helpers/errors";
 

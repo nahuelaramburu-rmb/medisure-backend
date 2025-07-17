@@ -14,3 +14,6 @@ export * from './role/routes';
 
 
 export * from './users/controller';
+
+export * from './middlewares/auth.middleware';
+export * from './middlewares/authorization.middleware';

@@ -1,5 +1,11 @@
 import { Request, Response } from "express";
-import { GetConsentsByPatientId, CreatePatientConsent, PatientConsentRepository, CreatePatientConsentDto, RevokeConsent, UserEntity } from "../../domain";
+import { 
+        GetConsentsByPatientId, 
+        CreatePatientConsent, 
+        PatientConsentRepository, 
+        CreatePatientConsentDto, 
+        RevokeConsent, 
+        UserEntity } from "../../domain";
 import { handleError } from "../helpers/errors";
 
 interface AuthenticatedRequest extends Request{

@@ -13,8 +13,8 @@ export class UserRoutes{
         const userRepository = new UserRepositoryImpl(datasource);
         const userController = new UserController(userRepository);
 
-        router.get('/', userController.getUsers);
-        router.get('/users/:user_name', userController.getUserByUserName);
+        router.get('/', userController.getUserByUserName);
+        router.get('/all', userController.getUsers);
 
         return router;
     }
