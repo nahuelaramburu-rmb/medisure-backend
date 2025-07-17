@@ -8,13 +8,13 @@ export class PatientConsentRepositoryImpl implements PatientConsentRepository{
     getConsentByIdPatient(patientId: string): Promise<PatientConsentEntity[]> {
         return this.datasource.getConsentByPatientId(patientId);
     }
-    createConsent(createConsentDto: CreatePatientConsentDto): Promise<PatientConsentEntity> {
-        return this.datasource.createConsent(createConsentDto);
+    createConsent(createConsentDto: CreatePatientConsentDto, id_user:string, ip: string): Promise<PatientConsentEntity> {
+        return this.datasource.createConsent(createConsentDto, id_user, ip);
     }
-    revokeConsent(id: string, revokedAt?: Date): Promise<PatientConsentEntity> {
-        return this.datasource.revokeConsent(id, revokedAt);
+    revokeConsent(id: string,  id_user:string, ip:string): Promise<PatientConsentEntity> {
+        return this.datasource.revokeConsent(id, id_user, ip);
     }
-    getConsentLogsByPatient(patientId: string): Promise<AccessLogEntity[]> {
+    getConsentLogsByPatient(patientId: string): Promise<PatientConsentEntity[]> {
         return this.datasource.getConsentLogsByPatient(patientId);
     }
     

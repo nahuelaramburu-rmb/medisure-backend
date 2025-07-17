@@ -6,7 +6,7 @@ import { PatientConsentEntity } from "../entities/patient-consent.entity";
 
 export abstract class PatientConsentRepository {
     abstract getConsentByIdPatient(patientId: string): Promise<PatientConsentEntity[]>;
-    abstract createConsent(createConsentDto: CreatePatientConsentDto): Promise<PatientConsentEntity>;
-    abstract revokeConsent(patientId: string, revokedAt?: Date): Promise<PatientConsentEntity>;
-    abstract getConsentLogsByPatient(patientId: string): Promise<AccessLogEntity[]>;
+    abstract createConsent(createConsentDto: CreatePatientConsentDto, id_user:string, ip:string): Promise<PatientConsentEntity>;
+    abstract revokeConsent(id: string,  id_user:string, ip:string): Promise<PatientConsentEntity>;
+    abstract getConsentLogsByPatient(patientId: string): Promise<PatientConsentEntity[]>;
 }

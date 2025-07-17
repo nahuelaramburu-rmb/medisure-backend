@@ -20,7 +20,7 @@ export class ClinicalTrialEntity {
         if (!trial_identifier) throw 'Missing Trial Identifier';
         if (!title) throw 'Missing Title';
         if (!status) throw 'Missing Status';
-        if (! patient_count ) throw 'Missing Patient Count ID';
+        if (typeof patient_count !== 'number' || patient_count < 0)  throw 'Missing Patient Count ID';
         
         let newStartDate;
         if( start_date ){

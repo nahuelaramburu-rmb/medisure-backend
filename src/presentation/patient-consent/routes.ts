@@ -2,7 +2,8 @@ import { Router } from "express";
 import { PatientConsentDatasourceImpl } from "../../infraestructure/datasources/patient-consent.datasource.impl";
 import { PatientConsentRepositoryImpl } from "../../infraestructure/repositories/patient-consent.repository.impl";
 import { PatientConsentController } from "./controller";
-
+import { AuthMiddleware } from "../middlewares/auth.middleware";
+import { Request, Response } from "express";
 
 export class PatientConsentRoutes{
     static get routes():Router{
@@ -14,10 +15,10 @@ export class PatientConsentRoutes{
         router.get('/:patientId', (req, res) => {
             patientConsentController.getConsentsByPatientId(req, res);
         });
-        router.post('/create', (req, res) => {
+        router.post('/create',[AuthMiddleware.validateJWT], (req: Request, res: Response) => {
             patientConsentController.createConsent(req, res);
         });
-        router.put('/revoke/:id', (req, res) => {
+        router.put('/revoke/:id',[AuthMiddleware.validateJWT], (req: Request, res: Response) => {
             patientConsentController.revokeConsent(req, res);
         });
         router.get('/logs/:patientId', (req, res) => {

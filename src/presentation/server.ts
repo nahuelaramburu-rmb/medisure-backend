@@ -51,9 +51,6 @@ export class Server {
         // Middleware for Swagger UI
         this.app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-        // Defined routes
-        //this.app.use(this.routes);
-
 
 
         CronService.createJob(

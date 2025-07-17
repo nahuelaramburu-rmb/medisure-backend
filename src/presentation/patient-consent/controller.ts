@@ -1,7 +1,10 @@
 import { Request, Response } from "express";
-import { GetConsentsByPatientId, CreatePatientConsent, PatientConsentRepository, CreatePatientConsentDto, RevokeConsent } from "../../domain";
+import { GetConsentsByPatientId, CreatePatientConsent, PatientConsentRepository, CreatePatientConsentDto, RevokeConsent, UserEntity } from "../../domain";
 import { handleError } from "../helpers/errors";
 
+interface AuthenticatedRequest extends Request{
+    user?: UserEntity;
+}
 
 export class PatientConsentController{
     constructor(
@@ -21,12 +24,16 @@ export class PatientConsentController{
             })
             .catch( error=> handleError(error, res) );
     };
-    createConsent = (req: Request, res: Response) => {
+    createConsent = (req: AuthenticatedRequest, res: Response) => {
         const [error, createConsentDto] = CreatePatientConsentDto.create(req.body);
         if (error) return res.status(400).json({ error });
+        if (!req.user) return res.status(401).json({ error: "Unauthorized: user not found in request" });
+        
+        const { id } = req.user;
+        let ip = req.headers['x-forwarded-for']?.toString().split(',')[0] || req.socket.remoteAddress || "0.0.0.0";
 
         new CreatePatientConsent(this.repository)
-            .execute(createConsentDto!)
+            .execute(createConsentDto!, id, ip)
             .then(data => {
                 res.json({
                     msg: "ok",
@@ -36,12 +43,16 @@ export class PatientConsentController{
             .catch(error => handleError(error, res));
     };
 
-    revokeConsent = (req: Request, res: Response) => {
-        const id = req.params.id;
-        const revokedAt = new Date();
+    revokeConsent = (req: AuthenticatedRequest, res: Response) => {
+        const id_consent = req.params.id;
         
+        if (!req.user) return res.status(401).json({ error: "Unauthorized: user not found in request" });
+        
+        const { id } = req.user;
+        let ip = req.headers['x-forwarded-for']?.toString().split(',')[0] || req.socket.remoteAddress || "0.0.0.0";
+
         new RevokeConsent(this.repository)
-            .execute(id, revokedAt)
+            .execute(id_consent, id, ip)
             .then(data => {
                 res.json({
                     msg: "ok",

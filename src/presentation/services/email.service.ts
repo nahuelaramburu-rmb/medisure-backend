@@ -21,7 +21,7 @@ export class EmailService {
     mailerService: string,
     mailerEmail: string,
     senderEmailPassword: string,
-    private readonly postToProvider: boolean = false
+    private readonly postToProvider: boolean = true
   ) {
     this.transporter = nodemailer.createTransport({
       service: mailerService,

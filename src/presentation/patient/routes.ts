@@ -13,7 +13,7 @@ export class PatientRoutes {
         const patientRepository = new PatientRepositoryImpl(datasource);
         const patientController = new PatientController(patientRepository);
 
-        router.get('/', (req: Request, res: Response) => { patientController.getPatients(req, res) });
+        router.get('/',  [AuthMiddleware.validateJWT], (req: Request, res: Response) => { patientController.getPatients(req, res) });
         router.get('/:id', [AuthMiddleware.validateJWT], patientController.getPatientById);
         router.post('/create', [AuthMiddleware.validateJWT], (req: Request, res: Response) => {
             patientController.createPatient(req, res);

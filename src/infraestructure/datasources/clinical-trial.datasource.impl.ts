@@ -156,16 +156,7 @@ export class ClinicalTrialDataSourceImpl implements ClinicalTrialDataSource {
             else if (matchedCriteria.length === 1) elegibilityScore = 70;
             else elegibilityScore = 40;
 
-            console.log(`[getClinicalTrialEligibleCandidates] candidate:`, {
-                patientId: patient.id,
-                medicalRecordNumber: patient.medical_record_number,
-                name: `${patient.first_name} ${patient.last_name}`,
-                age,
-                elegibilityScore,
-                matchedCriteria,
-                missingCriteria
-            });
-
+            
             return {
                 patientId: patient.id,
                 medicalRecordNumber: patient.medical_record_number,
@@ -200,7 +191,7 @@ export class ClinicalTrialDataSourceImpl implements ClinicalTrialDataSource {
 
     async getClinicalTrialPerformanceMetrics(groupByDto: GetKpiAcrossTrialsDto): Promise<TrialPerformanceMetricsResponse> {
         const { startDate, endDate, groupBy } = groupByDto;
-
+        console.log(startDate, endDate, groupBy);
         // 1. filter trials by date range
         const trials = await prisma.clinical_trials.findMany({
             where: {
@@ -209,7 +200,7 @@ export class ClinicalTrialDataSourceImpl implements ClinicalTrialDataSource {
             }
         });
 
-        console.log(trials);
+        
         // 2. group trials by the specified field
         const groupMap = new Map<string, typeof trials>();
         for (const trial of trials) {
@@ -257,7 +248,7 @@ export class ClinicalTrialDataSourceImpl implements ClinicalTrialDataSource {
                     }
                 }
             }
-            console.log(topPerformer);
+            
             metrics.push({
                 groupName,
                 groupValue: groupBy,

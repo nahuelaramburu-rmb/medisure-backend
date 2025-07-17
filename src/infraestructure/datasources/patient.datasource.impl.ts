@@ -20,7 +20,7 @@ export class PatientDataSourceImpl implements PatientDataSource {
 
     async getAllPatients(paginationDto: PaginationDto): Promise<PatientEntity[]> {
         const { page, limit } = paginationDto;
-        try {
+        
             const patients = await prisma.patients.findMany(
                 {
                     orderBy: { created_at: 'desc' },
@@ -29,10 +29,6 @@ export class PatientDataSourceImpl implements PatientDataSource {
                 });
 
             return patients.map(patient => PatientEntity.fromObject(patient));
-
-        } catch (error) {
-            throw new CustomError(500, 'Error fetching patients');
-         }
     }
     async getPatientById(id: string): Promise<PatientEntity> {
 

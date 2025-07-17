@@ -4,7 +4,7 @@ import { PatientConsentRepository } from "../../repositories/patient-consent.rep
 
 
 interface GetLogAccessByPatientUseCase {
-    execute(patientId: string): Promise<AccessLogEntity[]>;
+    execute(patientId: string): Promise<PatientConsentEntity[]>;
 }
 
 export class GetLogAccessByPatient implements GetLogAccessByPatientUseCase {
@@ -12,7 +12,7 @@ export class GetLogAccessByPatient implements GetLogAccessByPatientUseCase {
         private readonly patientConsentRepository: PatientConsentRepository
     ) {}
 
-    async execute(patientId: string): Promise<AccessLogEntity[]> {
+    async execute(patientId: string): Promise<PatientConsentEntity[]> {
         if (!patientId) {
             throw new Error("Patient ID is required");
         }
